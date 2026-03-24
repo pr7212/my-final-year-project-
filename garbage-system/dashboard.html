@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Dashboard - Garbage System</title>
+    <link rel="stylesheet" href="css/style.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+    />
+    <script defer src="js/script.js"></script>
+  </head>
+  <body>
+    <!-- Navbar -->
+    <div class="dashboard-navbar">
+      <div style="display: flex; align-items: center; gap: 12px;">
+        <button class="sidebar-toggle" onclick="document.getElementById('sidebar').classList.toggle('open')">
+          <i class="fas fa-bars"></i>
+        </button>
+        <h2><i class="fas fa-trash-alt"></i> Garbage System Dashboard</h2>
+      </div>
+      <a href="index.html" class="logout-link"
+        ><i class="fas fa-sign-out-alt"></i> Logout</a
+      >
+    </div>
+
+    <div class="dashboard-container">
+      <!-- Sidebar -->
+      <nav class="sidebar" id="sidebar">
+        <h3>Menu</h3>
+        <div class="sidebar-nav">
+          <a href="#" class="active"
+            ><i class="fas fa-tachometer-alt"></i> Dashboard</a
+          >
+          <a href="#"><i class="fas fa-plus-circle"></i> Report Waste</a>
+          <a href="#"><i class="fas fa-list"></i> My Reports</a>
+          <a href="#"><i class="fas fa-chart-bar"></i> Analytics</a>
+          <a href="#"><i class="fas fa-users"></i> Users</a>
+          <a href="#"><i class="fas fa-cog"></i> Settings</a>
+        </div>
+      </nav>
+
+      <!-- Main Content -->
+      <main class="main-content">
+        <div
+          style="
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 8px;
+          "
+        >
+          <h1>Welcome back, <span style="color: #2c7be5">John Doe</span>!</h1>
+          <input
+            type="text"
+            id="reports-search"
+            placeholder="Search reports..."
+            aria-label="Search reports"
+            style="
+              width: 300px;
+              max-width: 100%;
+              padding: 12px;
+              border-radius: 25px;
+              border: 2px solid #e1e5e9;
+            "
+          />
+        </div>
+        <p style="color: #718096; margin-bottom: 32px">
+          Here's what's happening with your city today. All-time stats.
+        </p>
+
+        <!-- Stats Cards -->
+        <div class="stats-grid">
+          <div class="stat-card stat-total">
+            <h3>Total Reports</h3>
+            <p class="stat-number">127</p>
+            <small>+12% from last month</small>
+          </div>
+
+          <div class="stat-card stat-pending">
+            <h3>Pending</h3>
+            <p class="stat-number">24</p>
+            <small>Waiting collection</small>
+          </div>
+
+          <div class="stat-card stat-collected">
+            <h3>Collected</h3>
+            <p class="stat-number">103</p>
+            <small>Successfully resolved</small>
+          </div>
+        </div>
+
+        <!-- Recent Reports -->
+        <div class="card reports-section">
+          <div
+            style="
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              margin-bottom: 24px;
+            "
+          >
+            <h2><i class="fas fa-clock"></i> Recent Reports</h2>
+
+              href="#"
+              style="color: #2c7be5; text-decoration: none; font-weight: 500"
+              >View all →</a
+            >
+          </div>
+
+          <table class="reports-table">
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Location</th>
+                <th>Type</th>
+                <th>Status</th>
+                <th>Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>#001</td>
+                <td>
+                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
+                  Nairobi CBD
+                </td>
+                <td>Plastic Waste</td>
+                <td><span class="status-pending">Pending</span></td>
+                <td>2 hours ago</td>
+              </tr>
+              <tr>
+                <td>#002</td>
+                <td>
+                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
+                  Roysambu
+                </td>
+                <td>Organic Waste</td>
+                <td><span class="status-collected">Collected</span></td>
+                <td>1 day ago</td>
+              </tr>
+              <tr>
+                <td>#003</td>
+                <td>
+                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
+                  Westlands
+                </td>
+                <td>Metal Scraps</td>
+                <td><span class="status-pending">Pending</span></td>
+                <td>3 days ago</td>
+              </tr>
+              <tr>
+                <td>#004</td>
+                <td>
+                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
+                  Kilimani
+                </td>
+                <td>Electronics</td>
+                <td><span class="status-collected">Collected</span></td>
+                <td>5 days ago</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </main>
+    </div>
+  </body>
+</html>

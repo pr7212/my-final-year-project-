@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Login - Garbage System</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="card" style="max-width: 400px; margin: 100px auto">
+        <h2 style="text-align: center">Login</h2>
+        <form action="#" method="POST" onsubmit="return validateLogin();">
+          <label for="login-email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="login-email"
+            placeholder="Enter your email"
+            required
+          />
+          <span class="error-message" id="email-error"></span>
+          <label for="login-password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="login-password"
+            placeholder="Enter your password"
+            required
+          />
+          <span class="error-message" id="password-error"></span>
+          <button type="submit" style="width: 100%">Login</button>
+        </form>
+        <p style="text-align: center; margin-top: 15px">
+          Don't have an account?
+          <a href="register.html">Register</a>
+        </p>
+      </div>
+    </div>
+    <script src="js/script.js"></script>
+  </body>
+</html>
