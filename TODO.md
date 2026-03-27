@@ -1,21 +1,43 @@
-# Garbage Tracker: Connect Frontend to Backend/DB
+# TODO: Test register/login → dashboard shows DB data
 
-## Status: In Progress [1/8]
+## Plan Summary
 
-### 1. ✅ Create TODO.md (done)
+Test flow: register new user → login → dashboard displays data from DB (after creating requests).
 
-### 2. ✅ Fix schema.sql - Add 'requests' table matching backend code
+**Status:** In progress
 
-### 3. ✅ Enhance script.js - Add API auth (login/register), dashboard data fetch/update
+## Steps
 
-### 4. ✅ Update dashboard.html - Add dynamic elements, auth check
+### 1. [DONE ✅] Fix authentication protection
 
-### 5. ✅ Read & update login.html/register.html for JS form handling
+Updated `garbage-tracker/includes/auth.php` with session_start() + login check/redirect to index.php.
 
-### 6. [ ] Setup DB - Check MySQL, import schema
+### 2. [MANUAL] Setup Database
 
-### 7. [ ] Test - Start server, verify frontend loads real data
+**Manual step - run in new terminal:**
 
-### 8. [ ] Complete task
+```
+cd /d "c:\Users\Administrator\Desktop\garbage_system\garbage-tracker\database"
+C:\xampp\mysql\bin\mysql.exe -u root < schema.sql
 
-"
+```
+
+(Starts MySQL if not, creates DB/tables. No password for root.)
+
+Or start XAMPP Control Panel → Start MySQL → then above.
+
+### 3. [PENDING] Start PHP Development Server
+
+Run `cd garbage-tracker && start.bat` (starts server at http://localhost:8000)
+
+### 4. [PENDING] Test Full Flow
+
+- Open http://localhost:8000/index.php
+- Click Register → create user (name, email, pass)
+- Login at index.php
+- Go to dashboard.php → table loads (empty OK)
+- Create request (area) → refresh → see DB data in table
+
+### 5. [PENDING] Verify & Complete
+
+**Next Action:** Start server and test flow (Steps 3-4)
