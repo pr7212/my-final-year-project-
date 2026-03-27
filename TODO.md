@@ -1,39 +1,21 @@
-    # Phase 5 TODO - Garbage Tracker Completion
+# Garbage Tracker: Connect Frontend to Backend/DB
 
-## Plan Steps (Approved by user):
+## Status: In Progress [1/8]
 
-1. ✅ **Create TODO.md** - Tracking progress.
+### 1. ✅ Create TODO.md (done)
 
-2. ✅ **Create new action files:**
-   - `garbage-tracker/actions/edit_request.php` - Update request area/status via POST JSON.
-   - `garbage-tracker/actions/delete_request.php` - Delete request via POST JSON.
+### 2. ✅ Fix schema.sql - Add 'requests' table matching backend code
 
-3. ✅ **Update dashboard.php:**
-   - Integrate includes/header.php, footer.php.
-   - Replace static table with dynamic AJAX table (load via fetch_requests.php).
-   - Add edit/delete buttons per row calling new APIs.
-   - Client-side form validation.
+### 3. ✅ Enhance script.js - Add API auth (login/register), dashboard data fetch/update
 
-4. ✅ **Create/Update JS:**
-   - `garbage-tracker/js/script.js` - AJAX functions: loadTable(), editRow(id), deleteRow(id), validateForm().
+### 4. ✅ Update dashboard.html - Add dynamic elements, auth check
 
-5. ✅ **Update CSS:**
-   - `garbage-tracker/css/style.css` - Styles for table, forms, modals, responsive.
+### 5. ✅ Read & update login.html/register.html for JS form handling
 
-6. ✅ **Create tests:**
-   - `garbage-tracker/tests/test_login.php`
-   - `garbage-tracker/tests/test_dashboard.php`
-   - `garbage-tracker/tests/test_crud.php`
+### 6. [ ] Setup DB - Check MySQL, import schema
 
-7. ✅ **Test system:**
-   - Functional: Login, CRUD via browser.
-   - Usability: AJAX responsiveness.
-   - Security: Check validation/errors.
+### 7. [ ] Test - Start server, verify frontend loads real data
 
-8. ✅ **Prepare deployment:**
-   - Add README.md with run instructions.
-   - Final completion.
+### 8. [ ] Complete task
 
-## Progress: 8/8 complete ✅
-
-**Phase 5 COMPLETE!** Run `cd garbage-tracker && php -S localhost:8000` to test.
+"

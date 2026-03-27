@@ -31,3 +31,15 @@ CREATE TABLE schedules (
     collection_date DATE NOT NULL,
     status ENUM('scheduled','done') DEFAULT 'scheduled'
 );
+
+-- REQUESTS TABLE (used by backend APIs)
+CREATE TABLE requests (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id INT NOT NULL,
+    area VARCHAR(255) NOT NULL,
+    status ENUM('pending', 'in-progress', 'completed') DEFAULT 'pending',
+    timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_status (status),
+    INDEX idx_user_id (user_id)
+);

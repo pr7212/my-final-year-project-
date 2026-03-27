@@ -13,7 +13,7 @@ function clearError(input, errorElement) {
 }
 
 function validateEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/; // Fixed: \s and \.
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
   return emailRegex.test(email) && email.trim() !== '';
 }
 
@@ -60,7 +60,6 @@ function validateRegister() {
   const emailInput = document.getElementById('register-email');
   const passwordInput = document.getElementById('register-password');
 
-  // Reuse error spans if present, otherwise fall back to alert
   const nameError = document.getElementById('register-name-error');
   const emailError = document.getElementById('register-email-error');
   const passwordError = document.getElementById('register-password-error');
@@ -92,6 +91,72 @@ function validateRegister() {
   } else if (passwordError) clearError(passwordInput, passwordError);
 
   return valid;
+}
+
+// ─── API Functions ────────────────────────────────────────────────────────────
+
+const API_BASE = '../garbage-tracker/actions/';
+
+async function loadDashboardData() {
+  try {
+    const res = await fetch(`${API_BASE}fetch_requests.php`, {
+      credentials: 'same-origin',
+    });
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+
+    const result = await res.json();
+    if (result.success) {
+      updateStats(result.data);
+      updateReportsTable(result.data);
+    } else {
+      console.error('API error:', result.message);
+      document.getElementById('requests-tbody').innerHTML =
+        '<tr><td colspan="5">No data or unauthorized. Login required.</td></tr>';
+    }
+  } catch (err) {
+    console.error('Fetch error:', err);
+    document.getElementById('requests-tbody').innerHTML =
+      '<tr><td colspan="5">Connection failed. Start server & DB.</td></tr>';
+  }
+}
+
+function updateStats(data) {
+  const totalEl = document.getElementById('stat-total');
+  const pendingEl = document.getElementById('stat-pending');
+
+  if (totalEl) totalEl.textContent = data.length;
+  if (pendingEl) {
+    const pending = data.filter((r) => r.status === 'pending').length;
+    pendingEl.textContent = pending;
+  }
+
+  const collectedEl = document.getElementById('stat-collected');
+  if (collectedEl)
+    collectedEl.textContent =
+      data.length - (pendingEl ? parseInt(pendingEl.textContent) : 0);
+}
+
+function updateReportsTable(data) {
+  const tbody = document.getElementById('requests-tbody');
+  if (!tbody || !data || data.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="5">No requests found</td></tr>';
+    return;
+  }
+
+  tbody.innerHTML = data
+    .slice(0, 10)
+    .map(
+      (row) => `
+    <tr>
+      <td>#${String(row.id).padStart(3, '0')}</td>
+      <td><i class="fas fa-map-marker-alt" style="color: #2c7be5"></i> ${row.area}</td>
+      <td>${row.status.replace('-', ' ').replace(/\b\w/g, (l) => l.toUpperCase())}</td>
+      <td><span class="status-${row.status}">${row.status}</span></td>
+      <td>${new Date(row.timestamp).toLocaleString()}</td>
+    </tr>
+  `
+    )
+    .join('');
 }
 
 // ─── Single DOMContentLoaded ──────────────────────────────────────────────────
@@ -129,14 +194,20 @@ document.addEventListener('DOMContentLoaded', function () {
     });
   }
 
-  // ── Dashboard logic (only runs if sidebar exists) ──
+  // ── Dashboard logic ──
   const sidebar = document.getElementById('sidebar');
 
   if (sidebar) {
+    loadDashboardData();
+
     // Dark mode toggle
     const themeToggle = document.createElement('button');
     themeToggle.innerHTML = '🌙';
     themeToggle.className = 'theme-toggle';
+    themeToggle.style.position = 'fixed';
+    themeToggle.style.top = '20px';
+    themeToggle.style.right = '20px';
+    themeToggle.style.zIndex = '1000';
     document.body.appendChild(themeToggle);
 
     themeToggle.addEventListener('click', function () {
@@ -155,17 +226,14 @@ document.addEventListener('DOMContentLoaded', function () {
       themeToggle.innerHTML = '☀️';
     }
 
-    // Mobile sidebar — uses the .sidebar-toggle button already in dashboard.html navbar
+    // Mobile sidebar
     function initMobileMenu() {
-      if (window.innerWidth <= 768) {
-        sidebar.classList.remove('open');
-      }
+      if (window.innerWidth <= 768) sidebar.classList.remove('open');
     }
-
     window.addEventListener('resize', initMobileMenu);
     initMobileMenu();
 
-    // Reports search/filter
+    // Reports search
     const searchInput = document.getElementById('reports-search');
     if (searchInput) {
       searchInput.addEventListener('input', function () {
@@ -178,17 +246,5 @@ document.addEventListener('DOMContentLoaded', function () {
         });
       });
     }
-
-    // Stat card fade-in animation
-    const cards = document.querySelectorAll('.stat-card');
-    cards.forEach((card, index) => {
-      card.style.opacity = '0';
-      card.style.transform = 'translateY(20px)';
-      setTimeout(() => {
-        card.style.transition = 'all 0.6s ease';
-        card.style.opacity = '1';
-        card.style.transform = 'translateY(0)';
-      }, index * 200);
-    });
   }
 });

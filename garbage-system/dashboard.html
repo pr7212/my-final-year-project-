@@ -74,19 +74,19 @@
         <div class="stats-grid">
           <div class="stat-card stat-total">
             <h3>Total Reports</h3>
-            <p class="stat-number">127</p>
-            <small>+12% from last month</small>
+            <p class="stat-number" id="stat-total">0</p>
+            <small>Loading...</small>
           </div>
 
           <div class="stat-card stat-pending">
             <h3>Pending</h3>
-            <p class="stat-number">24</p>
+            <p class="stat-number" id="stat-pending">0</p>
             <small>Waiting collection</small>
           </div>
 
           <div class="stat-card stat-collected">
             <h3>Collected</h3>
-            <p class="stat-number">103</p>
+            <p class="stat-number" id="stat-collected">0</p>
             <small>Successfully resolved</small>
           </div>
         </div>
@@ -119,46 +119,9 @@
                 <th>Date</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody id="requests-tbody">
               <tr>
-                <td>#001</td>
-                <td>
-                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
-                  Nairobi CBD
-                </td>
-                <td>Plastic Waste</td>
-                <td><span class="status-pending">Pending</span></td>
-                <td>2 hours ago</td>
-              </tr>
-              <tr>
-                <td>#002</td>
-                <td>
-                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
-                  Roysambu
-                </td>
-                <td>Organic Waste</td>
-                <td><span class="status-collected">Collected</span></td>
-                <td>1 day ago</td>
-              </tr>
-              <tr>
-                <td>#003</td>
-                <td>
-                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
-                  Westlands
-                </td>
-                <td>Metal Scraps</td>
-                <td><span class="status-pending">Pending</span></td>
-                <td>3 days ago</td>
-              </tr>
-              <tr>
-                <td>#004</td>
-                <td>
-                  <i class="fas fa-map-marker-alt" style="color: #2c7be5"></i>
-                  Kilimani
-                </td>
-                <td>Electronics</td>
-                <td><span class="status-collected">Collected</span></td>
-                <td>5 days ago</td>
+                <td colspan="5">Loading data...</td>
               </tr>
             </tbody>
           </table>
@@ -167,3 +130,4 @@
     </div>
   </body>
 </html>
+"'"
