@@ -78,7 +78,7 @@ $stmt->close();
 
 // 9. Hash password only after all validation passes
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-$role = "citizen";
+$role = "user";
 
 // 10. Insert using a prepared statement — prevents SQL injection
 $stmt = $conn->prepare(

@@ -13,9 +13,9 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 $user_id = (int) $_SESSION['user_id'];
-$role    = $_SESSION['role'] ?? 'citizen';
+$role    = $_SESSION['role'] ?? 'user';
 
-// 2. Admins see all requests; citizens see only their own
+// 2. Admins see all requests; users see only their own
 if ($role === 'admin') {
   $stmt = $conn->prepare(
     "SELECT id, user_id, area, status, timestamp

@@ -2,7 +2,7 @@
 
 ## Features
 
-- User registration/login (citizen/admin roles)
+- User registration/login (user/admin roles)
 - Dashboard with full CRUD for garbage pickup requests
 - AJAX real-time table updates
 - Client/server validation & CSRF protection
