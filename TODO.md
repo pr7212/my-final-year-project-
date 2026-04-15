@@ -1,14 +1,14 @@
-# Task: Run Localhost Server for Garbage Tracker
+# TODO: Push changes to GitHub - Progress Tracking
 
-## Approved Plan Summary
+## Completed Steps:
 
-Setup MySQL DB and start PHP dev server.
+- [x] Confirmed Git status: branch `blackboxai/connect-frontend-db` up to date, untracked files identified (Claude/, garbage-tracker/js/chat.js)
+- [x] Created TODO.md for tracking
 
-## Steps:
+## Pending Steps:
 
-- [x] Step 1: DB setup script executed (note: mysqli may be missing).
-- [x] Step 2: PHP 8.3.30 confirmed.
-- [x] Step 3: Starting PHP server.
-- [x] Step 4: Test http://localhost:8000/index.php.
-
-**Current Progress: All steps complete. Server ready at http://localhost:8000/index.php. mysqli extension may be needed for full DB features.**
+- [ ] Add untracked file: `git add garbage-tracker/js/chat.js`
+- [ ] Remove/ignore Claude/ directory: `rmdir /s Claude`
+- [ ] Commit changes: `git commit -m "Add chat.js and cleanup"`
+- [ ] Push to GitHub: `git push origin blackboxai/connect-frontend-db`
+- [ ] Optional: Create PR via gh

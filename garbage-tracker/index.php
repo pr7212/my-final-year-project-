@@ -1,44 +1,60 @@
 <?php
-session_start(); // needed here ONLY to check login state + generate CSRF token
+session_start();
 
-// If already logged in, skip the login page
-if (isset($_SESSION['user_id'])) {
-  header("Location: dashboard.php");
+if (!empty($_SESSION['user_id'])) {
+  header('Location: dashboard.php');
   exit();
 }
 
-// Generate CSRF token if not set
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
 }
+
+$pageTitle = 'Login';
+$error = $_GET['error'] ?? '';
+$success = $_GET['success'] ?? '';
+
+$errorMessages = [
+  'missing_fields' => 'Email and password are required.',
+  'invalid_email' => 'Please enter a valid email address.',
+  'invalid_credentials' => 'Invalid email or password.',
+  'invalid_csrf' => 'Your session expired. Please try again.',
+  'method_not_allowed' => 'Invalid request method.',
+  'db_error' => 'A database error occurred. Please try again.'
+];
+
+$successMessages = [
+  'registered' => 'Registration successful. Please log in.',
+  'logged_out' => 'You have been logged out.'
+];
+
+include 'includes/header.php';
 ?>
-<!DOCTYPE html>
-<html lang="en">
-
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login</title>
-</head>
-
-<body>
+<div class="container">
   <h2>Login</h2>
 
-  <!-- Show error message if login failed -->
-  <?php if (isset($_GET['error']) && $_GET['error'] === '1'): ?>
-    <p style="color:red;">Invalid email or password. Please try again.</p>
+  <?php if (isset($errorMessages[$error])): ?>
+    <div id="feedback" style="display:block; color:red; background:#fff; padding:10px; margin:10px 0;">
+      <?= htmlspecialchars($errorMessages[$error]) ?>
+    </div>
+  <?php elseif (isset($successMessages[$success])): ?>
+    <div id="feedback" style="display:block; color:green; background:#fff; padding:10px; margin:10px 0;">
+      <?= htmlspecialchars($successMessages[$success]) ?>
+    </div>
   <?php endif; ?>
 
   <form action="actions/login.php" method="POST">
-
-    <!-- CSRF protection -->
     <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token']) ?>">
 
-    <input type="email" name="email" placeholder="Email" autocomplete="email" required><br><br>
-    <input type="password" name="password" placeholder="Password" autocomplete="current-password" required><br><br>
+    <label for="login-email">Email</label><br>
+    <input type="email" id="login-email" name="email" autocomplete="email" required><br><br>
+
+    <label for="login-password">Password</label><br>
+    <input type="password" id="login-password" name="password" autocomplete="current-password" required><br><br>
+
     <button type="submit">Login</button>
   </form>
-  <a href="register.php">Register</a>
-</body>
 
-</html>
+  <p><a href="register.php">Create a new account</a></p>
+</div>
+<?php include 'includes/footer.php'; ?>

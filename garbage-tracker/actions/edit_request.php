@@ -1,71 +1,110 @@
 <?php
 session_start();
-include '../config/db.php';
+require '../config/db.php';
+
 header('Content-Type: application/json');
 
-// 1. Auth check
-if (!isset($_SESSION['user_id'])) {
-  http_response_code(401);
-  echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+function respond($success, $message, $code = 200)
+{
+  http_response_code($code);
+  echo json_encode([
+    'success' => $success,
+    'message' => $message
+  ]);
   exit();
 }
 
-// 2. Validate inputs
-if (empty($_POST['request_id']) || empty($_POST['area']) || !isset($_POST['status'])) {
-  http_response_code(400);
-  echo json_encode(['success' => false, 'message' => 'Missing fields: request_id, area, status']);
-  exit();
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  respond(false, 'Method not allowed', 405);
 }
 
-$request_id = intval($_POST['request_id']);
-$area = trim($_POST['area']);
-$status = $_POST['status'];
+if (empty($_SESSION['user_id'])) {
+  respond(false, 'Unauthorized', 401);
+}
 
-if ($request_id <= 0) {
-  http_response_code(400);
-  echo json_encode(['success' => false, 'message' => 'Invalid request_id']);
-  exit();
+if (
+  empty($_SESSION['csrf_token']) ||
+  empty($_POST['csrf_token']) ||
+  !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
+) {
+  respond(false, 'Invalid CSRF token', 403);
+}
+
+$request_id = filter_input(INPUT_POST, 'request_id', FILTER_VALIDATE_INT);
+$area = trim($_POST['area'] ?? '');
+$status = trim($_POST['status'] ?? '');
+
+if (!$request_id || $request_id <= 0) {
+  respond(false, 'Invalid request_id', 400);
 }
 
 if (strlen($area) < 3 || strlen($area) > 255) {
-  http_response_code(400);
-  echo json_encode(['success' => false, 'message' => 'Area must be 3-255 chars']);
-  exit();
+  respond(false, 'Area must be 3-255 characters', 400);
 }
 
-if (!in_array($status, ['pending', 'assigned', 'completed', 'cancelled'])) {
-  http_response_code(400);
-  echo json_encode(['success' => false, 'message' => 'Invalid status']);
-  exit();
+$allowed_statuses = ['pending', 'assigned', 'completed', 'cancelled'];
+if (!in_array($status, $allowed_statuses, true)) {
+  respond(false, 'Invalid status', 400);
 }
 
-// 3. Verify ownership
-$user_id = intval($_SESSION['user_id']);
-$check_stmt = $conn->prepare("SELECT id FROM requests WHERE id = ? AND user_id = ?");
-$check_stmt->bind_param('ii', $request_id, $user_id);
-$check_stmt->execute();
-if ($check_stmt->get_result()->num_rows === 0) {
-  http_response_code(403);
-  echo json_encode(['success' => false, 'message' => 'Request not found or access denied']);
-  $check_stmt->close();
-  exit();
-}
-$check_stmt->close();
+$user_id = (int) $_SESSION['user_id'];
+$isAdmin = ($_SESSION['role'] ?? 'user') === 'admin';
 
-// 4. Update
-$stmt = $conn->prepare("UPDATE requests SET area = ?, status = ? WHERE id = ? AND user_id = ?");
-if (!$stmt) {
-  http_response_code(500);
-  echo json_encode(['success' => false, 'message' => 'DB error: ' . $conn->error]);
-  exit();
-}
-
-$stmt->bind_param('ssii', $area, $status, $request_id, $user_id);
-if ($stmt->execute() && $stmt->affected_rows > 0) {
-  echo json_encode(['success' => true, 'message' => 'Request updated']);
+if ($isAdmin) {
+  $check = $conn->prepare('SELECT 1 FROM requests WHERE id = ? LIMIT 1');
 } else {
-  echo json_encode(['success' => false, 'message' => 'Update failed']);
+  $check = $conn->prepare('SELECT 1 FROM requests WHERE id = ? AND user_id = ? LIMIT 1');
 }
+
+if (!$check) {
+  respond(false, 'Database error', 500);
+}
+
+if ($isAdmin) {
+  $check->bind_param('i', $request_id);
+} else {
+  $check->bind_param('ii', $request_id, $user_id);
+}
+
+$check->execute();
+$check->store_result();
+
+if ($check->num_rows === 0) {
+  $check->close();
+  $conn->close();
+  respond(false, 'Request not found or access denied', 403);
+}
+
+$check->close();
+
+if ($isAdmin) {
+  $stmt = $conn->prepare('UPDATE requests SET area = ?, status = ? WHERE id = ?');
+} else {
+  $stmt = $conn->prepare('UPDATE requests SET area = ?, status = ? WHERE id = ? AND user_id = ?');
+}
+
+if (!$stmt) {
+  $conn->close();
+  respond(false, 'Database error', 500);
+}
+
+if ($isAdmin) {
+  $stmt->bind_param('ssi', $area, $status, $request_id);
+} else {
+  $stmt->bind_param('ssii', $area, $status, $request_id, $user_id);
+}
+
+if (!$stmt->execute()) {
+  $stmt->close();
+  $conn->close();
+  respond(false, 'Update failed', 500);
+}
+
+$message = $stmt->affected_rows > 0
+  ? 'Request updated successfully'
+  : 'No changes made';
 
 $stmt->close();
 $conn->close();
+
+respond(true, $message);

@@ -1,63 +1,97 @@
 <?php
 session_start();
-include '../config/db.php';
+require '../config/db.php';
 
-// 1. Verify the user is logged in
-if (!isset($_SESSION['user_id'])) {
-  header("Location: ../index.php");
-  exit();
+function wants_json_response()
+{
+  $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+  $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+
+  return strtolower($requestedWith) === 'xmlhttprequest'
+    || stripos($accept, 'application/json') !== false;
 }
 
-// 2. Validate CSRF token
+function respond($success, $message, $data = null, $code = 200, $redirect = null)
+{
+  if (wants_json_response()) {
+    http_response_code($code);
+    header('Content-Type: application/json');
+
+    $response = [
+      'success' => $success,
+      'message' => $message
+    ];
+
+    if ($data !== null) {
+      $response['data'] = $data;
+    }
+
+    echo json_encode($response);
+    exit();
+  }
+
+  if ($redirect !== null) {
+    header('Location: ' . $redirect);
+    exit();
+  }
+
+  http_response_code($code);
+  exit($message);
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  respond(false, 'Method not allowed', null, 405, '../dashboard.php?error=method_not_allowed');
+}
+
+if (empty($_SESSION['user_id'])) {
+  respond(false, 'Unauthorized', null, 401, '../index.php');
+}
+
 if (
+  empty($_SESSION['csrf_token']) ||
   empty($_POST['csrf_token']) ||
   !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
-  http_response_code(403);
-  die("Invalid CSRF token.");
+  respond(false, 'Invalid CSRF token', null, 403, '../dashboard.php?error=invalid_csrf');
 }
 
-// 3. Check required POST field exists
-if (empty($_POST['area'])) {
-  header("Location: ../dashboard.php?error=missing_area");
-  exit();
-}
+$area = trim($_POST['area'] ?? '');
 
-// 4. Validate and sanitize input
-$area = trim($_POST['area']);
+if ($area === '') {
+  respond(false, 'Area is required', null, 400, '../dashboard.php?error=missing_area');
+}
 
 if (strlen($area) < 3) {
-  header("Location: ../dashboard.php?error=area_too_short");
-  exit();
+  respond(false, 'Area must be at least 3 characters long', null, 400, '../dashboard.php?error=area_too_short');
 }
 
 if (strlen($area) > 255) {
-  header("Location: ../dashboard.php?error=area_too_long");
-  exit();
+  respond(false, 'Area must be 255 characters or fewer', null, 400, '../dashboard.php?error=area_too_long');
 }
 
-// 5. Use session user_id — never trust POST for ownership
 $user_id = (int) $_SESSION['user_id'];
-$status  = "pending";
+$status = 'pending';
 
-// 6. Use a prepared statement — prevents SQL injection
-$stmt = $conn->prepare(
-  "INSERT INTO requests (user_id, area, status) VALUES (?, ?, ?)"
-);
-
+$stmt = $conn->prepare('INSERT INTO requests (user_id, area, status) VALUES (?, ?, ?)');
 if (!$stmt) {
-  header("Location: ../dashboard.php?error=db_error");
-  exit();
+  respond(false, 'Database error', null, 500, '../dashboard.php?error=db_error');
 }
 
-$stmt->bind_param("iss", $user_id, $area, $status);
+$stmt->bind_param('iss', $user_id, $area, $status);
 
-if ($stmt->execute()) {
-  header("Location: ../dashboard.php?success=1");
-} else {
-  header("Location: ../dashboard.php?error=insert_failed");
+if (!$stmt->execute()) {
+  $stmt->close();
+  $conn->close();
+  respond(false, 'Insert failed', null, 500, '../dashboard.php?error=insert_failed');
 }
+
+$newId = $stmt->insert_id;
 
 $stmt->close();
-$conn->close(); // close DB connection
-exit(); // 7. Always exit after every header() redirect
+$conn->close();
+
+respond(true, 'Request created successfully', [
+  'id' => $newId,
+  'area' => $area,
+  'status' => $status
+], 201, '../dashboard.php?success=request_submitted');

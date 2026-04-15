@@ -1,58 +1,93 @@
 <?php
 session_start();
-include '../config/db.php';
+require '../config/db.php';
 
-// 1. Verify user is logged in first
-if (!isset($_SESSION['user_id'])) {
-  header("Location: ../index.php");
+function redirect_with_status($query)
+{
+  header('Location: ../dashboard.php?' . $query);
   exit();
 }
 
-// 2. Verify user is an admin
-if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-  http_response_code(403);
-  die("Access denied.");
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  http_response_code(405);
+  exit('Method not allowed');
 }
 
-// 3. Validate CSRF token
+if (empty($_SESSION['user_id'])) {
+  header('Location: ../index.php');
+  exit();
+}
+
+if (($_SESSION['role'] ?? '') !== 'admin') {
+  http_response_code(403);
+  exit('Access denied.');
+}
+
 if (
+  empty($_SESSION['csrf_token']) ||
   empty($_POST['csrf_token']) ||
   !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
   http_response_code(403);
-  die("Invalid CSRF token.");
+  exit('Invalid CSRF token.');
 }
 
-// 4. Check that required POST fields are present
-if (empty($_POST['area_id']) || empty($_POST['truck_id'])) {
-  header("Location: ../admin/dashboard.php?error=missing_fields");
-  exit();
-}
+$area_id = filter_input(INPUT_POST, 'area_id', FILTER_VALIDATE_INT, [
+  'options' => ['min_range' => 1]
+]);
 
-// 5. Validate inputs are positive integers
-$area_id  = filter_var($_POST['area_id'],  FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
-$truck_id = filter_var($_POST['truck_id'], FILTER_VALIDATE_INT, ['options' => ['min_range' => 1]]);
+$truck_id = filter_input(INPUT_POST, 'truck_id', FILTER_VALIDATE_INT, [
+  'options' => ['min_range' => 1]
+]);
 
 if (!$area_id || !$truck_id) {
-  header("Location: ../admin/dashboard.php?error=invalid_input");
-  exit();
+  redirect_with_status('error=invalid_input');
 }
 
-// 6. Use a prepared statement — prevents SQL injection
-$stmt = $conn->prepare("UPDATE areas SET assigned_truck = ? WHERE id = ?");
+$checkArea = $conn->prepare('SELECT id FROM areas WHERE id = ? LIMIT 1');
+$checkTruck = $conn->prepare('SELECT id FROM trucks WHERE id = ? LIMIT 1');
 
+if (!$checkArea || !$checkTruck) {
+  redirect_with_status('error=db_error');
+}
+
+$checkArea->bind_param('i', $area_id);
+$checkArea->execute();
+$checkArea->store_result();
+
+$checkTruck->bind_param('i', $truck_id);
+$checkTruck->execute();
+$checkTruck->store_result();
+
+if ($checkArea->num_rows === 0 || $checkTruck->num_rows === 0) {
+  $checkArea->close();
+  $checkTruck->close();
+  $conn->close();
+  redirect_with_status('error=not_found');
+}
+
+$checkArea->close();
+$checkTruck->close();
+
+$stmt = $conn->prepare('UPDATE areas SET assigned_truck = ? WHERE id = ?');
 if (!$stmt) {
-  header("Location: ../admin/dashboard.php?error=db_error");
-  exit();
+  $conn->close();
+  redirect_with_status('error=db_error');
 }
 
-$stmt->bind_param("ii", $truck_id, $area_id);
+$stmt->bind_param('ii', $truck_id, $area_id);
 
-if ($stmt->execute() && $stmt->affected_rows > 0) {
-  header("Location: ../admin/dashboard.php?success=truck_assigned");
-} else {
-  header("Location: ../admin/dashboard.php?error=assign_failed");
+if (!$stmt->execute()) {
+  $stmt->close();
+  $conn->close();
+  redirect_with_status('error=assign_failed');
 }
+
+$result = $stmt->affected_rows > 0
+  ? 'success=truck_assigned'
+  : 'info=no_change';
 
 $stmt->close();
-exit();
+$conn->close();
+
+redirect_with_status($result);

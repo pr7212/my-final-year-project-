@@ -1,75 +1,76 @@
 <?php
 session_start();
-include '../config/db.php';
+require '../config/db.php';
 
-// Always set JSON content type first for API endpoints
 header('Content-Type: application/json');
 
-// 1. Verify the user is logged in
-if (!isset($_SESSION['user_id'])) {
-  http_response_code(401);
-  echo json_encode(['success' => false, 'message' => 'Unauthorised.']);
+function respond($success, $message, $data = [], $code = 200)
+{
+  http_response_code($code);
+  echo json_encode([
+    'success' => $success,
+    'message' => $message,
+    'count' => count($data),
+    'data' => $data
+  ]);
   exit();
+}
+
+if (empty($_SESSION['user_id'])) {
+  respond(false, 'Unauthorized', [], 401);
 }
 
 $user_id = (int) $_SESSION['user_id'];
-$role    = $_SESSION['role'] ?? 'user';
+$isAdmin = ($_SESSION['role'] ?? 'user') === 'admin';
 
-// 2. Admins see all requests; users see only their own
-if ($role === 'admin') {
+if ($isAdmin) {
   $stmt = $conn->prepare(
-    "SELECT id, user_id, area, status, timestamp
-         FROM requests
-         ORDER BY timestamp DESC"
+    'SELECT id, user_id, area, status, timestamp
+     FROM requests
+     ORDER BY timestamp DESC'
   );
 } else {
   $stmt = $conn->prepare(
-    "SELECT id, area, status, timestamp
-         FROM requests
-         WHERE user_id = ?
-         ORDER BY timestamp DESC"
+    'SELECT id, user_id, area, status, timestamp
+     FROM requests
+     WHERE user_id = ?
+     ORDER BY timestamp DESC'
   );
 }
 
-// 3. Check prepared statement succeeded
 if (!$stmt) {
-  http_response_code(500);
-  echo json_encode(['success' => false, 'message' => 'Query preparation failed.']);
-  exit();
+  respond(false, 'Database error', [], 500);
 }
 
-// 4. Bind parameter only for non-admin queries
-if ($role !== 'admin') {
-  $stmt->bind_param("i", $user_id);
+if (!$isAdmin) {
+  $stmt->bind_param('i', $user_id);
 }
 
-$stmt->execute();
+if (!$stmt->execute()) {
+  $stmt->close();
+  $conn->close();
+  respond(false, 'Query execution failed', [], 500);
+}
+
 $result = $stmt->get_result();
-
-// 5. Check result is valid before looping
 if (!$result) {
-  http_response_code(500);
-  echo json_encode(['success' => false, 'message' => 'Query failed.']);
-  exit();
+  $stmt->close();
+  $conn->close();
+  respond(false, 'Failed to fetch data', [], 500);
 }
 
-// 6. Build response with only the columns the frontend needs
 $data = [];
 while ($row = $result->fetch_assoc()) {
   $data[] = [
-    'id'        => (int) $row['id'],
-    'area'      => $row['area'],
-    'status'    => $row['status'],
-    'timestamp' => $row['timestamp'],
+    'id' => (int) $row['id'],
+    'user_id' => (int) $row['user_id'],
+    'area' => $row['area'],
+    'status' => $row['status'],
+    'timestamp' => $row['timestamp']
   ];
 }
 
 $stmt->close();
+$conn->close();
 
-// 7. Always return a consistent response structure
-echo json_encode([
-  'success' => true,
-  'count'   => count($data),
-  'data'    => $data
-]);
-exit();
+respond(true, 'Requests fetched successfully', $data);

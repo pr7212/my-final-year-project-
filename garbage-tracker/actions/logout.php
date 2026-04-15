@@ -1,26 +1,27 @@
 <?php
 session_start();
 
-// 1. Validate CSRF token to prevent logout CSRF attacks
+// 0. Validate CSRF token (logout protection)
 if (
   empty($_GET['csrf_token']) ||
-  !isset($_SESSION['csrf_token']) ||
+  empty($_SESSION['csrf_token']) ||
   !hash_equals($_SESSION['csrf_token'], $_GET['csrf_token'])
 ) {
   http_response_code(403);
-  die("Invalid CSRF token.");
+  exit("Invalid CSRF token.");
 }
 
-// 2. Clear the $_SESSION superglobal in memory
+// 1. Clear all session data
 $_SESSION = [];
 
-// 3. Expire and delete the session cookie in the browser
+// 2. Remove session cookie (secure deletion)
 if (ini_get("session.use_cookies")) {
   $params = session_get_cookie_params();
+
   setcookie(
     session_name(),
     '',
-    time() - 42000,
+    time() - 3600,
     $params["path"],
     $params["domain"],
     $params["secure"],
@@ -28,9 +29,9 @@ if (ini_get("session.use_cookies")) {
   );
 }
 
-// 4. Destroy the server-side session data
+// 3. Destroy session on server
 session_destroy();
 
-// 5. Redirect with exit() — never omit exit() after header()
-header("Location: ../index.php");
+// 4. Redirect user safely
+header("Location: ../index.php?success=logged_out");
 exit();
