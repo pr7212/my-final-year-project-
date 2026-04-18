@@ -1,215 +1,193 @@
 'use strict';
 
-const csrfToken = document.querySelector('input[name="csrf_token"]')?.value || '';
+/* =====================================
+   ELEMENTS
+===================================== */
+const csrfToken =
+  document.querySelector('input[name="csrf_token"]')?.value || '';
+const userRole = document.body.dataset.role || 'resident';
+
 const tableBody = document.querySelector('#requests-table tbody');
 const createForm = document.getElementById('create-form');
 const areaInput = document.getElementById('area-input');
 const feedbackDiv = document.getElementById('feedback');
 const editModal = document.getElementById('edit-modal');
 
-function showFeedback(message, isSuccess = false) {
-  if (!feedbackDiv) {
-    return;
-  }
+/* =====================================
+   FEEDBACK
+===================================== */
+function showFeedback(message, success = false) {
+  if (!feedbackDiv) return;
 
   feedbackDiv.textContent = message;
-  feedbackDiv.style.color = isSuccess ? 'green' : 'red';
   feedbackDiv.style.display = 'block';
+  feedbackDiv.style.color = success ? 'green' : 'red';
 
-  window.setTimeout(() => {
+  setTimeout(() => {
     feedbackDiv.style.display = 'none';
-  }, 5000);
+  }, 4000);
 }
 
+/* =====================================
+   VALIDATION
+===================================== */
 function validateArea(area) {
   if (!area || area.trim().length < 3 || area.trim().length > 255) {
-    return 'Area must be 3-255 characters';
+    return 'Area must be between 3 and 255 characters.';
   }
 
   return null;
 }
 
-function createCell(label, value, className = '') {
-  const cell = document.createElement('td');
-  cell.dataset.label = label;
-  cell.textContent = value;
-
-  if (className) {
-    cell.className = className;
-  }
-
-  return cell;
-}
-
-function toStatusClass(status) {
-  return `status-${String(status || '').toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
-}
-
+/* =====================================
+   AJAX HELPER
+===================================== */
 async function ajaxRequest(url, options = {}) {
   const method = options.method || 'POST';
-  const headers = {
-    Accept: 'application/json',
-    'X-Requested-With': 'XMLHttpRequest'
-  };
 
-  const requestOptions = {
+  const config = {
     method,
-    headers
+    headers: {
+      Accept: 'application/json',
+      'X-Requested-With': 'XMLHttpRequest',
+    },
   };
 
   if (options.data) {
-    headers['Content-Type'] = 'application/x-www-form-urlencoded';
-    requestOptions.body = new URLSearchParams(options.data).toString();
+    config.headers['Content-Type'] = 'application/x-www-form-urlencoded';
+    config.body = new URLSearchParams(options.data).toString();
   }
 
   try {
-    const response = await fetch(url, requestOptions);
-    const contentType = response.headers.get('content-type') || '';
-
-    if (contentType.includes('application/json')) {
-      return await response.json();
-    }
-
-    const text = await response.text();
-    return {
-      success: response.ok,
-      message: text || 'Unexpected server response'
-    };
+    const response = await fetch(url, config);
+    return await response.json();
   } catch (error) {
     return {
       success: false,
-      message: `Network error: ${error.message}`
+      message: 'Network error',
     };
   }
 }
 
+/* =====================================
+   TABLE RENDER
+===================================== */
 function renderRows(items) {
-  if (!tableBody) {
-    return;
-  }
+  if (!tableBody) return;
 
   tableBody.innerHTML = '';
 
   if (!items.length) {
-    const row = document.createElement('tr');
-    const cell = document.createElement('td');
-    cell.colSpan = 4;
-    cell.textContent = 'No requests found';
-    row.appendChild(cell);
-    tableBody.appendChild(row);
+    tableBody.innerHTML = `<tr><td colspan="4">No requests found</td></tr>`;
     return;
   }
 
-  items.forEach((rowData) => {
+  items.forEach((item) => {
     const row = document.createElement('tr');
 
-    row.appendChild(createCell('ID', String(rowData.id)));
-    row.appendChild(createCell('Area', rowData.area || ''));
+    row.innerHTML = `
+            <td>${item.id}</td>
+            <td>${item.area}</td>
+            <td>${item.status}</td>
+            <td class="actions-cell"></td>
+        `;
 
-    const statusCell = createCell('Status', rowData.status || '', toStatusClass(rowData.status));
-    row.appendChild(statusCell);
+    const actionsCell = row.querySelector('.actions-cell');
 
-    const actionsCell = document.createElement('td');
-    actionsCell.dataset.label = 'Actions';
+    /* ==========================
+           RESIDENT ACTIONS
+        ========================== */
+    if (userRole === 'resident') {
+      if (item.status === 'pending') {
+        const editBtn = createButton('Edit', () =>
+          editRow(item.id, item.area, item.status)
+        );
 
-    const editButton = document.createElement('button');
-    editButton.type = 'button';
-    editButton.textContent = 'Edit';
-    editButton.addEventListener('click', () => {
-      editRow(rowData.id, rowData.area, rowData.status);
-    });
+        const delBtn = createButton('Delete', () => deleteRow(item.id), 'red');
 
-    const deleteButton = document.createElement('button');
-    deleteButton.type = 'button';
-    deleteButton.textContent = 'Delete';
-    deleteButton.style.background = 'red';
-    deleteButton.style.color = 'white';
-    deleteButton.addEventListener('click', () => {
-      deleteRow(rowData.id);
-    });
+        actionsCell.append(editBtn, delBtn);
+      } else {
+        actionsCell.textContent = '-';
+      }
+    } else if (userRole === 'admin') {
 
-    actionsCell.appendChild(editButton);
-    actionsCell.appendChild(deleteButton);
-    row.appendChild(actionsCell);
+    /* ==========================
+           ADMIN ACTIONS
+        ========================== */
+      const editBtn = createButton('Edit', () =>
+        editRow(item.id, item.area, item.status)
+      );
+
+      const delBtn = createButton('Delete', () => deleteRow(item.id), 'red');
+
+      actionsCell.append(editBtn, delBtn);
+    } else if (userRole === 'collector') {
+
+    /* ==========================
+           COLLECTOR ACTIONS
+        ========================== */
+      if (item.status === 'assigned') {
+        const doneBtn = createButton(
+          'Collected',
+          () => markCollected(item.id),
+          'green'
+        );
+
+        actionsCell.append(doneBtn);
+      } else {
+        actionsCell.textContent = '-';
+      }
+    } else if (userRole === 'officer') {
+
+    /* ==========================
+           OFFICER ACTIONS
+        ========================== */
+      actionsCell.textContent = 'Read Only';
+    }
+
     tableBody.appendChild(row);
   });
 }
 
+/* =====================================
+   CREATE BUTTON
+===================================== */
+function createButton(text, callback, color = '') {
+  const btn = document.createElement('button');
+
+  btn.type = 'button';
+  btn.textContent = text;
+  btn.onclick = callback;
+
+  if (color) {
+    btn.style.background = color;
+    btn.style.color = '#fff';
+  }
+
+  return btn;
+}
+
+/* =====================================
+   LOAD TABLE
+===================================== */
 async function loadTable() {
   const result = await ajaxRequest('actions/fetch_requests.php');
 
   if (!result.success) {
-    showFeedback(result.message || 'Failed to load requests');
+    showFeedback(result.message);
     return;
   }
 
-  const items = Array.isArray(result.data)
-    ? result.data
-    : Array.isArray(result.data?.items)
-      ? result.data.items
-      : [];
-
-  renderRows(items);
+  renderRows(result.data || []);
 }
 
-function editRow(id, area, status) {
-  if (!editModal) {
-    return;
-  }
+/* =====================================
+   CREATE REQUEST
+===================================== */
+async function createRequest(e) {
+  e.preventDefault();
 
-  document.getElementById('edit-id').value = id;
-  document.getElementById('edit-area').value = area || '';
-  document.getElementById('edit-status').value = status || 'pending';
-  editModal.style.display = 'block';
-}
-
-async function saveEdit() {
-  const id = document.getElementById('edit-id').value;
-  const area = document.getElementById('edit-area').value;
-  const status = document.getElementById('edit-status').value;
-
-  const error = validateArea(area);
-  if (error) {
-    showFeedback(error);
-    return;
-  }
-
-  const result = await ajaxRequest('actions/edit_request.php', {
-    data: { request_id: id, area, status, csrf_token: csrfToken }
-  });
-
-  if (!result.success) {
-    showFeedback(result.message || 'Failed to update request');
-    return;
-  }
-
-  showFeedback(result.message || 'Request updated successfully', true);
-  closeModal();
-  loadTable();
-}
-
-async function deleteRow(id) {
-  if (!window.confirm('Delete this request?')) {
-    return;
-  }
-
-  const result = await ajaxRequest('actions/delete_request.php', {
-    data: { request_id: id, csrf_token: csrfToken }
-  });
-
-  if (!result.success) {
-    showFeedback(result.message || 'Failed to delete request');
-    return;
-  }
-
-  showFeedback(result.message || 'Request deleted successfully', true);
-  loadTable();
-}
-
-async function createRequest(event) {
-  event.preventDefault();
-
-  const area = areaInput?.value.trim() || '';
+  const area = areaInput.value.trim();
   const error = validateArea(area);
 
   if (error) {
@@ -218,23 +196,101 @@ async function createRequest(event) {
   }
 
   const result = await ajaxRequest('actions/create_request.php', {
-    data: { area, csrf_token: csrfToken }
+    data: { area, csrf_token: csrfToken },
   });
 
   if (!result.success) {
-    showFeedback(result.message || 'Failed to create request');
+    showFeedback(result.message);
     return;
   }
 
-  showFeedback(result.message || 'Request created successfully', true);
-
-  if (areaInput) {
-    areaInput.value = '';
-  }
-
+  showFeedback(result.message, true);
+  areaInput.value = '';
   loadTable();
 }
 
+/* =====================================
+   EDIT
+===================================== */
+function editRow(id, area, status) {
+  document.getElementById('edit-id').value = id;
+  document.getElementById('edit-area').value = area;
+  document.getElementById('edit-status').value = status;
+
+  editModal.style.display = 'block';
+}
+
+async function saveEdit() {
+  const id = document.getElementById('edit-id').value;
+  const area = document.getElementById('edit-area').value;
+  const status = document.getElementById('edit-status').value;
+
+  const result = await ajaxRequest('actions/edit_request.php', {
+    data: {
+      request_id: id,
+      area,
+      status,
+      csrf_token: csrfToken,
+    },
+  });
+
+  if (!result.success) {
+    showFeedback(result.message);
+    return;
+  }
+
+  showFeedback(result.message, true);
+  closeModal();
+  loadTable();
+}
+
+/* =====================================
+   DELETE
+===================================== */
+async function deleteRow(id) {
+  if (!confirm('Delete request?')) return;
+
+  const result = await ajaxRequest('actions/delete_request.php', {
+    data: {
+      request_id: id,
+      csrf_token: csrfToken,
+    },
+  });
+
+  if (!result.success) {
+    showFeedback(result.message);
+    return;
+  }
+
+  showFeedback(result.message, true);
+  loadTable();
+}
+
+/* =====================================
+   COLLECTOR COMPLETE
+===================================== */
+async function markCollected(id) {
+  const result = await ajaxRequest('actions/edit_request.php', {
+    data: {
+      request_id: id,
+      status: 'completed',
+      area: '',
+      csrf_token: csrfToken,
+    },
+  });
+
+  if (!result.success) {
+    showFeedback(result.message);
+    return;
+  }
+
+  showFeedback('Marked as collected', true);
+  loadTable();
+}
+
+/* =====================================
+   MODAL
+===================================== */
 function closeModal() {
   if (editModal) {
     editModal.style.display = 'none';
@@ -244,14 +300,18 @@ function closeModal() {
 window.saveEdit = saveEdit;
 window.closeModal = closeModal;
 
+/* =====================================
+   INIT
+===================================== */
 document.addEventListener('DOMContentLoaded', () => {
-  if (createForm) {
+  if (createForm && userRole === 'resident') {
     createForm.addEventListener('submit', createRequest);
   }
 
-  const loadButton = document.getElementById('load-table');
-  if (loadButton) {
-    loadButton.addEventListener('click', loadTable);
+  const refreshBtn = document.getElementById('load-table');
+
+  if (refreshBtn) {
+    refreshBtn.addEventListener('click', loadTable);
   }
 
   loadTable();

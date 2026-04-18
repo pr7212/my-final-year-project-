@@ -2,7 +2,20 @@
 session_start();
 
 if (!empty($_SESSION['user_id'])) {
-  header('Location: dashboard.php');
+  switch ($_SESSION['role']) {
+    case 'admin':
+      header('Location: admin.php');
+      break;
+    case 'resident':
+      header('Location: resident.php');
+      break;
+    case 'collector':
+      header('Location: collector.php');
+      break;
+    case 'officer':
+      header('Location: officer.php');
+      break;
+  }
   exit();
 }
 

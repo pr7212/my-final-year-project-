@@ -1,13 +1,13 @@
 # Garbage Tracker Deployment TODO
 
-## GitHub Push (Step 1/8 - In Progress)
+## GitHub Push ✅ COMPLETE
 
 - [x] Create TODO.md
-- [ ] Get GitHub repo details from user (username/repo_name)
+- [x] Get GitHub repo details: pr7212/final-year-project
 - [x] Init git repo
-- [ ] Git add/commit
-- [ ] Create GitHub repo via gh
-- [ ] Git remote add/push
+- [x] Git add/commit
+- [x] Create & push GitHub repo: https://github.com/pr7212/final-year-project
+- [x] Git remote add/push
 
 ## Deployment (Step 2-5)
 

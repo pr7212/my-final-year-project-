@@ -93,7 +93,31 @@ $_SESSION['role'] = $user['role'];
 $stmt->close();
 $conn->close();
 
+$redirect = '../dashboard.php';
+
+switch ($user['role']) {
+  case 'admin':
+    $redirect = '../admin.php';
+    break;
+
+  case 'resident':
+    $redirect = '../resident.php';
+    break;
+
+  case 'collector':
+    $redirect = '../collector.php';
+    break;
+
+  case 'officer':
+    $redirect = '../officer.php';
+    break;
+
+  default:
+    $redirect = '../dashboard.php';
+    break;
+}
+
 respond(true, 'Login successful', [
   'role' => $user['role'],
   'name' => $user['name']
-], 200, '../dashboard.php');
+], 200, $redirect);

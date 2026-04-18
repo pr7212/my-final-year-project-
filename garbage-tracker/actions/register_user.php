@@ -4,7 +4,7 @@ require '../config/db.php';
 
 // 0. Redirect if already logged in
 if (!empty($_SESSION['user_id'])) {
-  header("Location: ../dashboard.php");
+  header("Location: ../index.php");
   exit();
 }
 
@@ -86,8 +86,7 @@ $stmt->close();
 
 // 10. Hash password (ONLY after validation)
 $hashed_password = password_hash($password, PASSWORD_DEFAULT);
-$role = "user";
-
+$role = "resident";
 // 11. Insert user securely
 $stmt = $conn->prepare(
   "INSERT INTO users (name, email, password, role) VALUES (?, ?, ?, ?)"
