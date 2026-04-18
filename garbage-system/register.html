@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Register - Garbage System</title>
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="container">
+      <div class="card" style="max-width: 400px; margin: 100px auto">
+        <h2 style="text-align: center">Register</h2>
+        <form
+          action="../garbage-tracker/actions/register_user.php"
+          method="POST"
+          onsubmit="return validateRegister();"
+        >
+          <label for="register-name">Full Name</label>
+          <input
+            type="text"
+            name="name"
+            id="register-name"
+            placeholder="Enter your name"
+            required
+          />
+          <label for="register-email">Email</label>
+          <input
+            type="email"
+            name="email"
+            id="register-email"
+            placeholder="Enter your email"
+            required
+          />
+          <label for="register-password">Password</label>
+          <input
+            type="password"
+            name="password"
+            id="register-password"
+            placeholder="Create password"
+            required
+          />
+          <button type="submit" style="width: 100%">Register</button>
+        </form>
+        <p style="text-align: center; margin-top: 15px">
+          Already have an account?
+          <a href="login.html">Login</a>
+        </p>
+      </div>
+    </div>
+    <script src="js/script.js"></script>
+  </body>
+</html>
