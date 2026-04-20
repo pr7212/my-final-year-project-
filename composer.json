@@ -1,0 +1,14 @@
+{
+  "name": "garbage-tracker/tests",
+  "description": "Unit and integration tests for Garbage Tracker system",
+  "type": "project",
+  "require-dev": {
+    "phpunit/phpunit": "^11.0"
+  },
+  "autoload": {
+    "psr-4": {
+      "Tests\\Unit\\": "tests/unit/"
+    }
+  },
+  "require": {}
+}

@@ -69,7 +69,7 @@ if ($checkArea->num_rows === 0 || $checkTruck->num_rows === 0) {
 $checkArea->close();
 $checkTruck->close();
 
-$stmt = $conn->prepare('UPDATE areas SET assigned_truck = ? WHERE id = ?');
+$stmt = $conn->prepare('UPDATE areas SET assigned_truck_id = ? WHERE id = ?');
 if (!$stmt) {
   $conn->close();
   redirect_with_status('error=db_error');

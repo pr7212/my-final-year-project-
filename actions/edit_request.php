@@ -2,109 +2,96 @@
 session_start();
 require '../config/db.php';
 
-header('Content-Type: application/json');
-
-function respond($success, $message, $code = 200)
+function wants_json_response()
 {
+  $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';
+  $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+
+  return strtolower($requestedWith) === 'xmlhttprequest'
+    || stripos($accept, 'application/json') !== false;
+}
+
+function respond($success, $message, $data = null, $code = 200, $redirect = null)
+{
+  if (wants_json_response()) {
+    http_response_code($code);
+    header('Content-Type: application/json');
+
+    $response = [
+      'success' => $success,
+      'message' => $message
+    ];
+
+    if ($data !== null) {
+      $response['data'] = $data;
+    }
+
+    echo json_encode($response);
+    exit();
+  }
+
+  if ($redirect !== null) {
+    header('Location: ' . $redirect);
+    exit();
+  }
+
   http_response_code($code);
-  echo json_encode([
-    'success' => $success,
-    'message' => $message
-  ]);
-  exit();
+  exit($message);
 }
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-  respond(false, 'Method not allowed', 405);
+  respond(false, 'Method not allowed', null, 405, '../resident.php?error=method_not_allowed');
 }
 
 if (empty($_SESSION['user_id'])) {
-  respond(false, 'Unauthorized', 401);
+  respond(false, 'Unauthorized', null, 401, '../index.php');
 }
+
+$role = $_SESSION['role'] ?? 'resident';
 
 if (
   empty($_SESSION['csrf_token']) ||
   empty($_POST['csrf_token']) ||
   !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
-  respond(false, 'Invalid CSRF token', 403);
+  respond(false, 'Invalid CSRF token', null, 403, '../resident.php?error=invalid_csrf');
 }
 
-$request_id = filter_input(INPUT_POST, 'request_id', FILTER_VALIDATE_INT);
-$area = trim($_POST['area'] ?? '');
-$status = trim($_POST['status'] ?? '');
+$request_id = (int)($_POST['request_id'] ?? 0);
+$area_id = (int)($_POST['area_id'] ?? 0);
+$status = $_POST['status'] ?? '';
 
-if (!$request_id || $request_id <= 0) {
-  respond(false, 'Invalid request_id', 400);
-}
-
-if (strlen($area) < 3 || strlen($area) > 255) {
-  respond(false, 'Area must be 3-255 characters', 400);
-}
-
-$allowed_statuses = ['pending', 'assigned', 'completed', 'cancelled'];
-if (!in_array($status, $allowed_statuses, true)) {
-  respond(false, 'Invalid status', 400);
+if ($request_id <= 0 || $area_id <= 0 || empty($status)) {
+  respond(false, 'Invalid input', null, 400, '../resident.php?error=invalid_input');
 }
 
 $user_id = (int) $_SESSION['user_id'];
-$isAdmin = ($_SESSION['role'] ?? 'user') === 'admin';
 
-if ($isAdmin) {
-  $check = $conn->prepare('SELECT 1 FROM requests WHERE id = ? LIMIT 1');
-} else {
-  $check = $conn->prepare('SELECT 1 FROM requests WHERE id = ? AND user_id = ? LIMIT 1');
-}
-
-if (!$check) {
-  respond(false, 'Database error', 500);
-}
-
-if ($isAdmin) {
-  $check->bind_param('i', $request_id);
-} else {
-  $check->bind_param('ii', $request_id, $user_id);
-}
-
-$check->execute();
-$check->store_result();
-
-if ($check->num_rows === 0) {
-  $check->close();
-  $conn->close();
-  respond(false, 'Request not found or access denied', 403);
-}
-
-$check->close();
-
-if ($isAdmin) {
-  $stmt = $conn->prepare('UPDATE requests SET area = ?, status = ? WHERE id = ?');
-} else {
-  $stmt = $conn->prepare('UPDATE requests SET area = ?, status = ? WHERE id = ? AND user_id = ?');
-}
-
+$sql = "
+  UPDATE requests
+  SET area_id = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+  WHERE id = ? AND (user_id = ? OR ? IN ('admin', 'officer'))
+";
+$stmt = $conn->prepare($sql);
 if (!$stmt) {
-  $conn->close();
-  respond(false, 'Database error', 500);
+  respond(false, 'Database error', null, 500, '../resident.php?error=db_error');
 }
 
-if ($isAdmin) {
-  $stmt->bind_param('ssi', $area, $status, $request_id);
-} else {
-  $stmt->bind_param('ssii', $area, $status, $request_id, $user_id);
-}
+$admin_officer = ($role === 'admin' || $role === 'officer') ? 1 : 0;
+$stmt->bind_param('isis i', $area_id, $status, $request_id, $user_id, $admin_officer);
 
 if (!$stmt->execute()) {
   $stmt->close();
   $conn->close();
-  respond(false, 'Update failed', 500);
+  respond(false, 'Update failed', null, 500, '../resident.php?error=update_failed');
 }
 
-$message = $stmt->affected_rows > 0
-  ? 'Request updated successfully'
-  : 'No changes made';
-
+$affected = $stmt->affected_rows;
 $stmt->close();
 $conn->close();
 
-respond(true, $message);
+if ($affected === 0) {
+  respond(false, 'Request not found or unauthorized', null, 403);
+}
+
+respond(true, 'Request updated successfully', ['affected_rows' => $affected]);

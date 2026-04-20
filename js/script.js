@@ -9,7 +9,7 @@ const userRole = document.body.dataset.role || 'resident';
 
 const tableBody = document.querySelector('#requests-table tbody');
 const createForm = document.getElementById('create-form');
-const areaInput = document.getElementById('area-input');
+const areaSelect = document.getElementById('area-select');
 const feedbackDiv = document.getElementById('feedback');
 const editModal = document.getElementById('edit-modal');
 
@@ -31,9 +31,9 @@ function showFeedback(message, success = false) {
 /* =====================================
    VALIDATION
 ===================================== */
-function validateArea(area) {
-  if (!area || area.trim().length < 3 || area.trim().length > 255) {
-    return 'Area must be between 3 and 255 characters.';
+function validateAreaId(areaId) {
+  if (!areaId || parseInt(areaId) <= 0) {
+    return 'Please select an area.';
   }
 
   return null;
@@ -86,8 +86,9 @@ function renderRows(items) {
     const row = document.createElement('tr');
 
     row.innerHTML = `
-            <td>${item.id}</td>
-            <td>${item.area}</td>
+    <td>${item.id}</td>
+            <td>${item.area_name}</td>
+            <td>${item.truck_name || 'No truck'}</td>
             <td>${item.status}</td>
             <td class="actions-cell"></td>
         `;
@@ -110,8 +111,7 @@ function renderRows(items) {
         actionsCell.textContent = '-';
       }
     } else if (userRole === 'admin') {
-
-    /* ==========================
+      /* ==========================
            ADMIN ACTIONS
         ========================== */
       const editBtn = createButton('Edit', () =>
@@ -122,8 +122,7 @@ function renderRows(items) {
 
       actionsCell.append(editBtn, delBtn);
     } else if (userRole === 'collector') {
-
-    /* ==========================
+      /* ==========================
            COLLECTOR ACTIONS
         ========================== */
       if (item.status === 'assigned') {
@@ -138,8 +137,7 @@ function renderRows(items) {
         actionsCell.textContent = '-';
       }
     } else if (userRole === 'officer') {
-
-    /* ==========================
+      /* ==========================
            OFFICER ACTIONS
         ========================== */
       actionsCell.textContent = 'Read Only';
@@ -187,8 +185,8 @@ async function loadTable() {
 async function createRequest(e) {
   e.preventDefault();
 
-  const area = areaInput.value.trim();
-  const error = validateArea(area);
+  const areaId = areaSelect.value;
+  const error = validateAreaId(areaId);
 
   if (error) {
     showFeedback(error);
@@ -196,7 +194,7 @@ async function createRequest(e) {
   }
 
   const result = await ajaxRequest('actions/create_request.php', {
-    data: { area, csrf_token: csrfToken },
+    data: { area_id: areaId, csrf_token: csrfToken },
   });
 
   if (!result.success) {
@@ -205,30 +203,42 @@ async function createRequest(e) {
   }
 
   showFeedback(result.message, true);
-  areaInput.value = '';
+  areaSelect.value = '';
   loadTable();
 }
 
 /* =====================================
    EDIT
 ===================================== */
-function editRow(id, area, status) {
+async function editRow(id, areaName, status) {
   document.getElementById('edit-id').value = id;
-  document.getElementById('edit-area').value = area;
+  document.getElementById('edit-area_id').value = '';
   document.getElementById('edit-status').value = status;
+
+  // Load areas for edit select
+  const result = await ajaxRequest('actions/fetch_areas.php');
+  if (result.success) {
+    populateSelect('edit-area_id', result.data, 'Select Area');
+  }
 
   editModal.style.display = 'block';
 }
 
 async function saveEdit() {
   const id = document.getElementById('edit-id').value;
-  const area = document.getElementById('edit-area').value;
+  const areaId = document.getElementById('edit-area_id').value;
   const status = document.getElementById('edit-status').value;
+
+  const error = validateAreaId(areaId);
+  if (error) {
+    showFeedback(error);
+    return;
+  }
 
   const result = await ajaxRequest('actions/edit_request.php', {
     data: {
       request_id: id,
-      area,
+      area_id: areaId,
       status,
       csrf_token: csrfToken,
     },
@@ -270,11 +280,10 @@ async function deleteRow(id) {
    COLLECTOR COMPLETE
 ===================================== */
 async function markCollected(id) {
-  const result = await ajaxRequest('actions/edit_request.php', {
+  const result = await ajaxRequest('actions/update_status.php', {
     data: {
       request_id: id,
       status: 'completed',
-      area: '',
       csrf_token: csrfToken,
     },
   });
@@ -303,13 +312,33 @@ window.closeModal = closeModal;
 /* =====================================
    INIT
 ===================================== */
-document.addEventListener('DOMContentLoaded', () => {
+async function populateSelect(selectId, areas, placeholder = 'Select...') {
+  const select = document.getElementById(selectId);
+  if (!select) return;
+
+  select.innerHTML = `<option value="">${placeholder}</option>`;
+  areas.forEach((area) => {
+    const option = document.createElement('option');
+    option.value = area.id;
+    option.textContent = area.name;
+    select.appendChild(option);
+  });
+}
+
+document.addEventListener('DOMContentLoaded', async () => {
+  // Load areas for create form
+  if (createForm) {
+    const result = await ajaxRequest('actions/fetch_areas.php');
+    if (result.success) {
+      populateSelect('area-select', result.data);
+    }
+  }
+
   if (createForm && userRole === 'resident') {
     createForm.addEventListener('submit', createRequest);
   }
 
   const refreshBtn = document.getElementById('load-table');
-
   if (refreshBtn) {
     refreshBtn.addEventListener('click', loadTable);
   }

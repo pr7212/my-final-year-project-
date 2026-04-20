@@ -93,31 +93,26 @@ $_SESSION['role'] = $user['role'];
 $stmt->close();
 $conn->close();
 
-$redirect = '../dashboard.php';
-
 switch ($user['role']) {
+
   case 'admin':
-    $redirect = '../admin.php';
+    header("Location: /garbage-tracker/dashboard.php");
     break;
 
   case 'resident':
-    $redirect = '../resident.php';
+    header("Location: /garbage-tracker/resident.php");
     break;
 
   case 'collector':
-    $redirect = '../collector.php';
+    header("Location: /garbage-tracker/collector.php");
     break;
 
   case 'officer':
-    $redirect = '../officer.php';
+    header("Location: /garbage-tracker/officer.php");
     break;
 
   default:
-    $redirect = '../dashboard.php';
-    break;
+    header("Location: /garbage-tracker/index.php");
 }
 
-respond(true, 'Login successful', [
-  'role' => $user['role'],
-  'name' => $user['name']
-], 200, $redirect);
+exit();

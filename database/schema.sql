@@ -63,7 +63,8 @@ CREATE TABLE requests (
     id INT AUTO_INCREMENT PRIMARY KEY,
 
     user_id INT NOT NULL,
-    area VARCHAR(255) NOT NULL,
+    area_id INT NOT NULL,
+    truck_id INT DEFAULT NULL,
 
     truck_id INT DEFAULT NULL,
 
@@ -78,6 +79,16 @@ CREATE TABLE requests (
         REFERENCES users(id)
         ON DELETE CASCADE,
 
+    CONSTRAINT fk_requests_user
+        FOREIGN KEY (user_id)
+        REFERENCES users(id)
+        ON DELETE CASCADE,
+
+    CONSTRAINT fk_requests_area
+        FOREIGN KEY (area_id)
+        REFERENCES areas(id)
+        ON DELETE RESTRICT,
+
     CONSTRAINT fk_requests_truck
         FOREIGN KEY (truck_id)
         REFERENCES trucks(id)
@@ -85,6 +96,7 @@ CREATE TABLE requests (
 
     INDEX idx_status (status),
     INDEX idx_user (user_id),
+    INDEX idx_area_id (area_id),
     INDEX idx_truck (truck_id)
 );
 

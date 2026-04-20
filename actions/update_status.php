@@ -18,7 +18,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
   respond(false, 'Method not allowed', 405);
 }
 
-if (empty($_SESSION['role']) || !in_array($_SESSION['role'], ['admin'], true)) {
+if (empty($_SESSION['role']) || !in_array($_SESSION['role'], ['admin', 'collector'], true)) {
   respond(false, 'Access denied', 403);
 }
 

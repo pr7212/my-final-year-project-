@@ -55,29 +55,21 @@ if (
   respond(false, 'Invalid CSRF token', null, 403, '../dashboard.php?error=invalid_csrf');
 }
 
-$area = trim($_POST['area'] ?? '');
+$area_id = (int)($_POST['area_id'] ?? 0);
 
-if ($area === '') {
-  respond(false, 'Area is required', null, 400, '../dashboard.php?error=missing_area');
-}
-
-if (strlen($area) < 3) {
-  respond(false, 'Area must be at least 3 characters long', null, 400, '../dashboard.php?error=area_too_short');
-}
-
-if (strlen($area) > 255) {
-  respond(false, 'Area must be 255 characters or fewer', null, 400, '../dashboard.php?error=area_too_long');
+if ($area_id <= 0) {
+  respond(false, 'Valid area is required', null, 400, '../dashboard.php?error=missing_area');
 }
 
 $user_id = (int) $_SESSION['user_id'];
 $status = 'pending';
 
-$stmt = $conn->prepare('INSERT INTO requests (user_id, area, status) VALUES (?, ?, ?)');
+$stmt = $conn->prepare('INSERT INTO requests (user_id, area_id, status) VALUES (?, ?, ?)');
 if (!$stmt) {
   respond(false, 'Database error', null, 500, '../dashboard.php?error=db_error');
 }
 
-$stmt->bind_param('iss', $user_id, $area, $status);
+$stmt->bind_param('iii', $user_id, $area_id, $status);
 
 if (!$stmt->execute()) {
   $stmt->close();
@@ -92,6 +84,6 @@ $conn->close();
 
 respond(true, 'Request created successfully', [
   'id' => $newId,
-  'area' => $area,
+  'area_id' => $area_id,
   'status' => $status
 ], 201, '../dashboard.php?success=request_submitted');

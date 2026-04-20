@@ -11,6 +11,18 @@ $logoutUrl = 'actions/logout.php';
 if (!empty($_SESSION['csrf_token'])) {
   $logoutUrl .= '?csrf_token=' . urlencode($_SESSION['csrf_token']);
 }
+
+function getDashboardUrl()
+{
+  $role = $_SESSION['role'] ?? 'guest';
+  $maps = [
+    'admin' => 'admin.php',
+    'resident' => 'resident.php',
+    'collector' => 'collector.php',
+    'officer' => 'officer.php'
+  ];
+  return $maps[$role] ?? 'dashboard.php';
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -28,7 +40,7 @@ if (!empty($_SESSION['csrf_token'])) {
     <span>
       <?php if (isset($_SESSION['user_id'])): ?>
         Welcome, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?>
-        | <a href="dashboard.php"><?= (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') ? 'Manage Requests' : 'My Requests' ?></a>
+        | <a href="<?= getDashboardUrl() ?>">Dashboard</a>
         | <a href="<?= htmlspecialchars($logoutUrl) ?>">Logout</a>
       <?php else: ?>
         <a href="index.php">Login</a> |

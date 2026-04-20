@@ -2,6 +2,8 @@
 session_start();
 require '../config/db.php';
 
+header('Content-Type: application/json');
+
 function redirect_with_status($query)
 {
   header('Location: ../dashboard.php?' . $query);
@@ -48,7 +50,8 @@ $checkArea = $conn->prepare('SELECT id FROM areas WHERE id = ? LIMIT 1');
 $checkTruck = $conn->prepare('SELECT id FROM trucks WHERE id = ? LIMIT 1');
 
 if (!$checkArea || !$checkTruck) {
-  redirect_with_status('error=db_error');
+  echo json_encode(["error" => $conn->error]);
+  exit();
 }
 
 $checkArea->bind_param('i', $area_id);
@@ -69,18 +72,17 @@ if ($checkArea->num_rows === 0 || $checkTruck->num_rows === 0) {
 $checkArea->close();
 $checkTruck->close();
 
-$stmt = $conn->prepare('UPDATE areas SET assigned_truck = ? WHERE id = ?');
+$stmt = $conn->prepare('UPDATE areas SET assigned_truck_id = ? WHERE id = ?');
 if (!$stmt) {
-  $conn->close();
-  redirect_with_status('error=db_error');
+  echo json_encode(["error" => $stmt->error]);
+  exit();
 }
 
 $stmt->bind_param('ii', $truck_id, $area_id);
 
 if (!$stmt->execute()) {
-  $stmt->close();
-  $conn->close();
-  redirect_with_status('error=assign_failed');
+  echo json_encode(["error" => $stmt->error]);
+  exit();
 }
 
 $result = $stmt->affected_rows > 0
