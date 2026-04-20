@@ -3,13 +3,13 @@
 ## GitHub Push ✅ COMPLETE
 
 - [x] Create TODO.md
-- [x] Get GitHub repo details: pr7212/final-year-project
+      pr7212/my-final-year-project-
 - [x] Init git repo
 - [x] Git add/commit
-- [x] Create & push GitHub repo: https://github.com/pr7212/final-year-project
+- [x] Create & push GitHub repo: https://github.com/pr7212/my-final-year-project-.git
 - [x] Git remote add/push
 
-## Feature Completion Plan (Approved) - In Progress
+## Feature Completion Plan (Approved) - ✅ COMPLETE
 
 ### Phase 1: Schedule Management ✅ COMPLETE
 
@@ -18,14 +18,14 @@
 - [x] Create garbage-tracker/actions/fetch_schedules.php
 - [x] Add link to admin.php
 
-### Phase 2: Reports/Complaints ⏳
+### Phase 2: Reports/Complaints ✅ COMPLETE
 
 - [x] Edit resident.php (add report form)
 - [x] Create admin_reports.php
 - [x] Create actions/create_report.php
 - [x] Create actions/fetch_reports.php
 
-### Phase 3: Truck Management ⏳
+### Phase 3: Truck Management ✅ COMPLETE
 
 - [x] Create admin_trucks.php
 - [x] Create actions/create_truck.php
