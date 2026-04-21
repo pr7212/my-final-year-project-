@@ -89,5 +89,8 @@ include 'includes/header.php';
   </div>
 </div>
 
+<script>
+  document.body.dataset.role = 'admin';
+</script>
 <script src="js/script.js"></script>
 <?php include 'includes/footer.php'; ?>
