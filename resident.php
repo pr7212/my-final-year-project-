@@ -48,11 +48,10 @@ include 'includes/header.php';
     <button type="submit">Submit Pickup Request</button>
   </form>
 
-  <button id="load-table" type="button" style="margin:10px 0;">Refresh My Requests</button>
 
   <div style="margin:20px 0;">
     <h3>📋 My Pickup Requests</h3>
-    <button id="load-requests" type="button" style="margin:10px 0;">Refresh Requests</button>
+    <button id="load-table" type="button" style="margin:10px 0;">Refresh Requests</button>
     <table id="requests-table" border="1" style="width:100%;">
       <thead>
         <tr>
@@ -91,22 +90,7 @@ include 'includes/header.php';
       </tbody>
     </table>
   </div>
-  <table id="requests-table" border="1" style="width:100%;">
-    <thead>
-      <tr>
-        <th>ID</th>
-        <th>Area</th>
-        <th>Truck</th>
-        <th>Status</th>
-        <th>Actions</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr>
-        <td colspan="4">Loading...</td>
-      </tr>
-    </tbody>
-  </table>
+
 
   <div id="edit-modal" style="display:none; position:fixed; top:20%; left:20%; background:white; border:2px solid #ccc; padding:20px; z-index:1000;">
     <h4>Edit Request</h4>
@@ -179,7 +163,7 @@ include 'includes/header.php';
     }
   }
 
-  document.getElementById('load-reports')?.onclick = loadReports;
+  document.getElementById('load-reports')?.addEventListener('click', loadReports);
 </script>
 <script src="js/script.js"></script>
 <?php include 'includes/footer.php'; ?>

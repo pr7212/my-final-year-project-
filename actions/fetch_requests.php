@@ -117,7 +117,7 @@ while ($row = $result->fetch_assoc()) {
     'area_name' => htmlspecialchars($row['area_name'] ?? 'Unknown'),
     'truck_name' => htmlspecialchars($row['truck_name'] ?? 'No truck'),
     'status'    => htmlspecialchars($row['status']),
-    'timestamp' => $row['created_at']
+    'created_at' => $row['created_at']
   ];
 }
 

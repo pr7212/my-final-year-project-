@@ -5,6 +5,7 @@ if ($_SESSION['role'] !== 'admin') {
   header("Location: index.php");
   exit();
 }
+$isAdmin = true;
 
 if (empty($_SESSION['csrf_token'])) {
   $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
@@ -15,7 +16,7 @@ $success = $_GET['success'] ?? '';
 $error = $_GET['error'] ?? '';
 
 include 'includes/header.php';
-include 'config/db.php';
+
 ?>
 <div class="container">
   <div id="feedback" style="display:none; padding:10px; margin:10px 0;"></div>

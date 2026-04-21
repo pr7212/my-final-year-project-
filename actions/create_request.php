@@ -69,7 +69,7 @@ if (!$stmt) {
   respond(false, 'Database error', null, 500, '../dashboard.php?error=db_error');
 }
 
-$stmt->bind_param('iii', $user_id, $area_id, $status);
+$stmt->bind_param('iis', $user_id, $area_id, $status);
 
 if (!$stmt->execute()) {
   $stmt->close();

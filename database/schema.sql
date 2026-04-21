@@ -66,18 +66,11 @@ CREATE TABLE requests (
     area_id INT NOT NULL,
     truck_id INT DEFAULT NULL,
 
-    truck_id INT DEFAULT NULL,
-
     status ENUM('pending','assigned','in-progress','completed','cancelled')
         NOT NULL DEFAULT 'pending',
 
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-
-    CONSTRAINT fk_requests_user
-        FOREIGN KEY (user_id)
-        REFERENCES users(id)
-        ON DELETE CASCADE,
 
     CONSTRAINT fk_requests_user
         FOREIGN KEY (user_id)

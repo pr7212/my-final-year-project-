@@ -67,18 +67,31 @@ if ($request_id <= 0 || $area_id <= 0 || empty($status)) {
 
 $user_id = (int) $_SESSION['user_id'];
 
-$sql = "
-  UPDATE requests
-  SET area_id = ?, status = ?, updated_at = CURRENT_TIMESTAMP
-  WHERE id = ? AND (user_id = ? OR ? IN ('admin', 'officer'))
-";
-$stmt = $conn->prepare($sql);
-if (!$stmt) {
-  respond(false, 'Database error', null, 500, '../resident.php?error=db_error');
+if ($role === 'admin' || $role === 'officer') {
+  // Admins/officers can edit any request
+  $sql = "
+    UPDATE requests
+    SET area_id = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ?
+  ";
+  $stmt = $conn->prepare($sql);
+  if (!$stmt) {
+    respond(false, 'Database error', null, 500, '../admin.php?error=db_error');
+  }
+  $stmt->bind_param('isi', $area_id, $status, $request_id);
+} else {
+  // Residents can only edit their own pending requests
+  $sql = "
+    UPDATE requests
+    SET area_id = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+    WHERE id = ? AND user_id = ?
+  ";
+  $stmt = $conn->prepare($sql);
+  if (!$stmt) {
+    respond(false, 'Database error', null, 500, '../resident.php?error=db_error');
+  }
+  $stmt->bind_param('isii', $area_id, $status, $request_id, $user_id);
 }
-
-$admin_officer = ($role === 'admin' || $role === 'officer') ? 1 : 0;
-$stmt->bind_param('isis i', $area_id, $status, $request_id, $user_id, $admin_officer);
 
 if (!$stmt->execute()) {
   $stmt->close();

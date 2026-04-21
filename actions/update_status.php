@@ -32,7 +32,7 @@ if (
 
 $request_id = filter_input(INPUT_POST, 'request_id', FILTER_VALIDATE_INT);
 $status = trim($_POST['status'] ?? '');
-$allowed_statuses = ['pending', 'assigned', 'completed', 'cancelled'];
+$allowed_statuses = ['pending', 'assigned', 'in-progress', 'completed', 'cancelled'];
 
 if (!$request_id || $request_id <= 0) {
   respond(false, 'Invalid request_id', 400);

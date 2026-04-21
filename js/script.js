@@ -101,7 +101,7 @@ function renderRows(items) {
     if (userRole === 'resident') {
       if (item.status === 'pending') {
         const editBtn = createButton('Edit', () =>
-          editRow(item.id, item.area, item.status)
+          editRow(item.id, item.area_name, item.status)
         );
 
         const delBtn = createButton('Delete', () => deleteRow(item.id), 'red');
@@ -115,7 +115,7 @@ function renderRows(items) {
            ADMIN ACTIONS
         ========================== */
       const editBtn = createButton('Edit', () =>
-        editRow(item.id, item.area, item.status)
+        editRow(item.id, item.area_name, item.status)
       );
 
       const delBtn = createButton('Delete', () => deleteRow(item.id), 'red');
