@@ -31,6 +31,9 @@ function getDashboardUrl()
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title><?= $fullPageTitle ?></title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -41,7 +44,11 @@ function getDashboardUrl()
       <?php if (isset($_SESSION['user_id'])): ?>
         Welcome, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?>
         | <a href="<?= getDashboardUrl() ?>">Dashboard</a>
-        | <a href="<?= htmlspecialchars($logoutUrl) ?>">Logout</a>
+        |
+        <form id="logout-form" action="actions/logout.php" method="POST" style="display:inline; margin:0; padding:0;">
+          <input type="hidden" name="csrf_token" value="<?= htmlspecialchars($_SESSION['csrf_token'] ?? '') ?>">
+          <button type="submit" style="background:none;border:none;color:blue;text-decoration:underline;cursor:pointer;padding:0;">Logout</button>
+        </form>
       <?php else: ?>
         <a href="index.php">Login</a> |
         <a href="register.php">Register</a>

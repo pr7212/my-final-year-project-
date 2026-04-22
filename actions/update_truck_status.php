@@ -1,5 +1,6 @@
 <?php
 session_start();
+header('Content-Type: application/json');
 include '../config/db.php';
 
 if (!isset($_SESSION['user_id'])) {
@@ -9,8 +10,6 @@ if (!isset($_SESSION['user_id'])) {
 
 require_once '../includes/auth.php';
 requireRole('admin');
-
-header('Content-Type: application/json');
 
 $input = json_decode(file_get_contents('php://input'), true);
 $id = (int)($input['id'] ?? 0);

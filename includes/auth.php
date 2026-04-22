@@ -1,13 +1,31 @@
 <?php
-session_start();
+// Hardened session start with secure cookie params
+if (session_status() === PHP_SESSION_NONE) {
+    // Preserve existing params but enforce httponly and samesite
+    $current = session_get_cookie_params();
+    $secure = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off');
+
+    // Some PHP versions accept an array; fallback to positional for older PHP
+    if (version_compare(PHP_VERSION, '7.3.0', '>=')) {
+        session_set_cookie_params([
+            'lifetime' => $current['lifetime'],
+            'path' => $current['path'],
+            'domain' => $current['domain'],
+            'secure' => $secure,
+            'httponly' => true,
+            'samesite' => 'Lax',
+        ]);
+    } else {
+        session_set_cookie_params($current['lifetime'], $current['path'], $current['domain'], $secure, true);
+    }
+
+    session_start();
+}
 
 if (!isset($_SESSION['user_id'])) {
     header("Location: index.php");
     exit();
 }
-
-
-
 
 function requireRole($role)
 {

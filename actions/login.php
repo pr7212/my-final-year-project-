@@ -90,29 +90,32 @@ $_SESSION['user_id'] = (int) $user['id'];
 $_SESSION['user_name'] = $user['name'];
 $_SESSION['role'] = $user['role'];
 
+// Rotate CSRF token after successful login to avoid token reuse
+$_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+
 $stmt->close();
 $conn->close();
 
 switch ($user['role']) {
 
   case 'admin':
-    header("Location: /garbage-tracker/dashboard.php");
+    header("Location: ../dashboard.php");
     break;
 
   case 'resident':
-    header("Location: /garbage-tracker/resident.php");
+    header("Location: ../resident.php");
     break;
 
   case 'collector':
-    header("Location: /garbage-tracker/collector.php");
+    header("Location: ../collector.php");
     break;
 
   case 'officer':
-    header("Location: /garbage-tracker/officer.php");
+    header("Location: ../officer.php");
     break;
 
   default:
-    header("Location: /garbage-tracker/index.php");
+    header("Location: ../index.php");
 }
 
 exit();

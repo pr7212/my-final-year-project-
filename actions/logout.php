@@ -1,11 +1,17 @@
 <?php
+// Only accept POST for logout to avoid token leakage via URLs
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+  http_response_code(405);
+  exit('Method not allowed');
+}
+
 session_start();
 
-// 0. Validate CSRF token (logout protection)
+// 0. Validate CSRF token (logout protection) from POST
 if (
-  empty($_GET['csrf_token']) ||
+  empty($_POST['csrf_token']) ||
   empty($_SESSION['csrf_token']) ||
-  !hash_equals($_SESSION['csrf_token'], $_GET['csrf_token'])
+  !hash_equals($_SESSION['csrf_token'], $_POST['csrf_token'])
 ) {
   http_response_code(403);
   exit("Invalid CSRF token.");

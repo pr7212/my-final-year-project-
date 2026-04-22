@@ -34,11 +34,11 @@ include 'includes/header.php';
   <h2>Login</h2>
 
   <?php if (isset($errorMessages[$error])): ?>
-    <div id="feedback" style="display:block; color:red; background:#fff; padding:10px; margin:10px 0;">
+    <div class="alert alert-error">
       <?= htmlspecialchars($errorMessages[$error]) ?>
     </div>
   <?php elseif (isset($successMessages[$success])): ?>
-    <div id="feedback" style="display:block; color:green; background:#fff; padding:10px; margin:10px 0;">
+    <div class="alert alert-success">
       <?= htmlspecialchars($successMessages[$success]) ?>
     </div>
   <?php endif; ?>

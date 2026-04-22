@@ -20,8 +20,8 @@ function showFeedback(message, success = false) {
   if (!feedbackDiv) return;
 
   feedbackDiv.textContent = message;
-  feedbackDiv.style.display = 'block';
-  feedbackDiv.style.color = success ? 'green' : 'red';
+  feedbackDiv.style.display = 'flex';
+  feedbackDiv.className = success ? 'alert alert-success' : 'alert alert-error';
 
   setTimeout(() => {
     feedbackDiv.style.display = 'none';
@@ -89,7 +89,7 @@ function renderRows(items) {
     <td>${item.id}</td>
             <td>${item.area_name}</td>
             <td>${item.truck_name || 'No truck'}</td>
-            <td>${item.status}</td>
+            <td><span class="status-badge status-${item.status.toLowerCase()}">${item.status}</span></td>
             <td class="actions-cell"></td>
         `;
 
@@ -156,8 +156,11 @@ function createButton(text, callback, color = '') {
   btn.type = 'button';
   btn.textContent = text;
   btn.onclick = callback;
+  btn.className = 'btn gap-2';
 
-  if (color) {
+  if (color === 'red') {
+    btn.className = 'btn btn-danger gap-2';
+  } else if (color) {
     btn.style.background = color;
     btn.style.color = '#fff';
   }

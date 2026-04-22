@@ -46,6 +46,8 @@ if ($role === 'admin' || $role === 'officer') {
 } elseif ($role === 'collector') {
 
   // Collectors only see assigned jobs
+  // NOTE (FYP Simplification): Currently returns all 'assigned' requests system-wide.
+  // In a production system, this should filter by the specific truck assigned to the collector.
   $sql = "
         SELECT r.id, r.user_id, r.status, r.created_at, a.name AS area_name, t.name AS truck_name
         FROM requests r
