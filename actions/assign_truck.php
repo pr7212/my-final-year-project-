@@ -20,7 +20,7 @@ if (empty($_SESSION['user_id'])) {
   exit();
 }
 
-if (($_SESSION['role'] ?? '') !== 'admin') {
+if (!in_array($_SESSION['role'] ?? '', ['admin', 'officer'])) {
   http_response_code(403);
   exit('Access denied.');
 }

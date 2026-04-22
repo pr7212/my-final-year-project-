@@ -50,6 +50,27 @@ include 'includes/header.php';
 
 
   <div style="margin:20px 0;">
+    <h3>📅 Collection Schedule</h3>
+    <button id="load-schedules" type="button" class="btn mt-4 mb-4">Refresh Schedule</button>
+    <div class="table-responsive">
+      <table id="schedules-table">
+        <thead>
+          <tr>
+            <th>Date</th>
+            <th>Location</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td colspan="3">Loading...</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <div style="margin:20px 0;">
     <h3>📋 My Pickup Requests</h3>
     <button id="load-table" type="button" class="btn mt-4 mb-4">Refresh Requests</button>
     <div class="table-responsive">
@@ -164,6 +185,33 @@ include 'includes/header.php';
   }
 
   document.getElementById('load-reports')?.addEventListener('click', loadReports);
+
+  async function loadSchedules() {
+    try {
+      const res = await fetch('actions/fetch_schedules.php');
+      const data = await res.json();
+      const tbody = document.querySelector('#schedules-table tbody');
+      tbody.innerHTML = '';
+      if (data.success && data.data.length) {
+        data.data.forEach(row => {
+          tbody.innerHTML += `
+            <tr>
+              <td>${row.collection_date}</td>
+              <td>${row.location}</td>
+              <td><span class="status-badge status-${row.status.toLowerCase()}">${row.status}</span></td>
+            </tr>
+          `;
+        });
+      } else {
+        tbody.innerHTML = '<tr><td colspan="3">No schedules found</td></tr>';
+      }
+    } catch (e) {
+      console.error(e);
+    }
+  }
+
+  document.getElementById('load-schedules')?.addEventListener('click', loadSchedules);
+  loadSchedules();
 </script>
 <script src="js/script.js"></script>
 <?php include 'includes/footer.php'; ?>

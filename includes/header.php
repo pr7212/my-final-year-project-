@@ -35,12 +35,17 @@ function getDashboardUrl()
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Outfit:wght@400;600;800&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="css/style.css">
+  <script>
+    const theme = localStorage.getItem('theme') || 'dark';
+    document.documentElement.setAttribute('data-theme', theme);
+  </script>
 </head>
 
 <body>
   <nav>
     <span><strong>Garbage Tracker</strong></span>
     <span>
+      <button id="theme-toggle" class="btn" style="padding: 0.4rem 0.8rem; margin-right: 15px; background: transparent; border: 1px solid var(--surface-border); color: var(--text-main); box-shadow: none;">🌓</button>
       <?php if (isset($_SESSION['user_id'])): ?>
         Welcome, <?= htmlspecialchars($_SESSION['user_name'] ?? 'User') ?>
         | <a href="<?= getDashboardUrl() ?>">Dashboard</a>

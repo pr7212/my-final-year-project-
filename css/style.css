@@ -15,6 +15,34 @@
   --radius-md: 12px;
   --radius-sm: 8px;
   --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.3);
+  
+  --input-bg: rgba(15, 23, 42, 0.5);
+  --input-focus-bg: rgba(15, 23, 42, 0.8);
+  --input-border: rgba(148, 163, 184, 0.2);
+  --nav-bg: rgba(15, 23, 42, 0.6);
+  --th-bg: rgba(15, 23, 42, 0.8);
+  --heading-color: #fff;
+  --hover-bg: rgba(255, 255, 255, 0.03);
+  --select-bg: #1e293b;
+  --modal-backdrop: rgba(0, 0, 0, 0.6);
+}
+
+[data-theme="light"] {
+  --bg-gradient: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  --surface: rgba(255, 255, 255, 0.8);
+  --surface-border: rgba(0, 0, 0, 0.1);
+  --text-main: #0f172a;
+  --text-muted: #475569;
+  --input-bg: rgba(255, 255, 255, 0.5);
+  --input-focus-bg: rgba(255, 255, 255, 0.8);
+  --input-border: rgba(0, 0, 0, 0.2);
+  --nav-bg: rgba(255, 255, 255, 0.6);
+  --th-bg: rgba(241, 245, 249, 0.8);
+  --heading-color: #0f172a;
+  --hover-bg: rgba(0, 0, 0, 0.03);
+  --select-bg: #ffffff;
+  --modal-backdrop: rgba(255, 255, 255, 0.6);
+  --shadow-glass: 0 8px 32px 0 rgba(0, 0, 0, 0.1);
 }
 
 * {
@@ -35,7 +63,7 @@ body {
 
 /* Glassmorphism Navigation */
 nav {
-  background: rgba(15, 23, 42, 0.6);
+  background: var(--nav-bg);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   padding: 1.25rem 2rem;
@@ -69,7 +97,7 @@ nav a {
 }
 
 nav a:hover {
-  color: #fff;
+  color: var(--heading-color);
   text-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
@@ -108,7 +136,7 @@ nav button[type="submit"]:hover {
 
 h2, h3 {
   font-family: var(--font-heading);
-  color: #fff;
+  color: var(--heading-color);
   margin-bottom: 1.5rem;
   font-weight: 600;
   letter-spacing: -0.5px;
@@ -147,11 +175,12 @@ textarea {
   width: 100%;
   max-width: 400px;
   padding: 0.85rem 1.2rem;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid rgba(148, 163, 184, 0.2);
+  background: var(--input-bg);
+  border: 2px solid var(--input-border);
   border-radius: var(--radius-md);
-  color: white;
+  color: var(--text-main);
   font-size: 1rem;
+  font-weight: 500;
   font-family: var(--font-body);
   transition: all 0.3s ease;
   margin-bottom: 1.2rem;
@@ -161,13 +190,13 @@ textarea {
 input:focus, select:focus, textarea:focus {
   outline: none;
   border-color: var(--primary);
-  background: rgba(15, 23, 42, 0.8);
-  box-shadow: 0 0 0 4px rgba(79, 70, 229, 0.2);
+  background: var(--input-focus-bg);
+  box-shadow: 0 0 0 4px var(--primary);
 }
 
 select option {
-  background: #1e293b;
-  color: white;
+  background: var(--select-bg);
+  color: var(--text-main);
 }
 
 /* Premium Buttons */
@@ -225,7 +254,7 @@ table {
 }
 
 th {
-  background: rgba(15, 23, 42, 0.8);
+  background: var(--th-bg);
   color: var(--text-muted);
   padding: 1.2rem 1rem;
   text-align: left;
@@ -248,7 +277,7 @@ tr {
 }
 
 tr:hover {
-  background: rgba(255, 255, 255, 0.03);
+  background: var(--hover-bg);
 }
 
 tr:last-child td {
@@ -265,29 +294,40 @@ tr:last-child td {
   max-width: 500px;
   margin: 10vh auto;
   border-radius: var(--radius-lg);
-  color: white;
+  color: var(--text-main);
 }
 
 #edit-modal::backdrop {
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--modal-backdrop);
   backdrop-filter: blur(4px);
 }
 
-/* Status Badges */
+/* Status Badges - Color Blind Friendly & High Contrast */
 .status-badge {
   display: inline-flex;
   align-items: center;
   padding: 0.35rem 0.8rem;
   border-radius: 999px;
   font-size: 0.85rem;
-  font-weight: 600;
+  font-weight: 700;
   letter-spacing: 0.3px;
+  gap: 0.4rem;
 }
 
-.status-pending { background: rgba(245, 158, 11, 0.2); color: #fcd34d; border: 1px solid rgba(245, 158, 11, 0.3); }
-.status-assigned { background: rgba(56, 189, 248, 0.2); color: #7dd3fc; border: 1px solid rgba(56, 189, 248, 0.3); }
-.status-completed { background: rgba(34, 197, 94, 0.2); color: #86efac; border: 1px solid rgba(34, 197, 94, 0.3); }
-.status-cancelled { background: rgba(239, 68, 68, 0.2); color: #fca5a5; border: 1px solid rgba(239, 68, 68, 0.3); }
+.status-pending { background: #FFC20A; color: #000; border: 1px solid #E5AA00; }
+.status-pending::before { content: '⏳'; }
+
+.status-assigned { background: #005AB5; color: #fff; border: 1px solid #00458A; }
+.status-assigned::before { content: '👤'; }
+
+.status-in-progress { background: #E66100; color: #fff; border: 1px solid #B34B00; }
+.status-in-progress::before { content: '🚚'; }
+
+.status-completed { background: #1A85FF; color: #fff; border: 1px solid #0066D6; }
+.status-completed::before { content: '✅'; }
+
+.status-cancelled { background: #D30F4B; color: #fff; border: 1px solid #9C0B37; }
+.status-cancelled::before { content: '❌'; }
 
 /* Alerts / Feedback */
 .alert {

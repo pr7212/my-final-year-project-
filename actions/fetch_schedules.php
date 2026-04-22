@@ -5,7 +5,7 @@ require_once '../includes/auth.php';
 
 header('Content-Type: application/json');
 
-requireRole(['admin']);
+requireRole(['admin', 'resident']);
 
 $user_id = (int) $_SESSION['user_id'];
 

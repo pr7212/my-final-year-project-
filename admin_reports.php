@@ -33,6 +33,7 @@ if (empty($_SESSION['csrf_token'])) {
           <th>Description</th>
           <th>Status</th>
           <th>Reported</th>
+          <th>Actions</th>
         </tr>
       </thead>
       <tbody>
@@ -60,12 +61,42 @@ if (empty($_SESSION['csrf_token'])) {
                 <td>${row.description.substring(0,100)}${row.description.length > 100 ? '...' : ''}</td>
                 <td><span style="color:${row.status === 'resolved' ? 'green' : 'orange'}">${row.status}</span></td>
                 <td>${new Date(row.created_at).toLocaleString()}</td>
+                <td>
+                  <select onchange="updateReportStatus(${row.id}, this.value)">
+                    <option value="pending" ${row.status==='pending'?'selected':''}>Pending</option>
+                    <option value="resolved" ${row.status==='resolved'?'selected':''}>Resolved</option>
+                  </select>
+                </td>
               </tr>
             `;
           });
         }
       } catch (e) {
         console.error('Load error:', e);
+      }
+    }
+
+    async function updateReportStatus(id, status) {
+      try {
+        const res = await fetch('actions/update_report_status.php', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            id,
+            status,
+            csrf_token: '<?= htmlspecialchars($_SESSION['csrf_token']) ?>'
+          })
+        });
+        const data = await res.json();
+        if (data.success) {
+          loadReports();
+        } else {
+          alert('Error: ' + data.message);
+        }
+      } catch (e) {
+        console.error(e);
       }
     }
 
