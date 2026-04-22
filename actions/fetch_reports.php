@@ -54,7 +54,7 @@ while ($row = $result->fetch_assoc()) {
   ];
 }
 
-respond(true, 'Reports fetched', $data);
-
 $stmt->close();
 $conn->close();
+
+respond(true, 'Reports fetched', $data);

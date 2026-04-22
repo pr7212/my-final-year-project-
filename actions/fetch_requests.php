@@ -38,7 +38,7 @@ if ($role === 'admin' || $role === 'officer') {
         SELECT r.id, r.user_id, r.status, r.created_at, a.name AS area_name, t.name AS truck_name
         FROM requests r
         LEFT JOIN areas a ON r.area_id = a.id
-        LEFT JOIN trucks t ON a.assigned_truck_id = t.id
+        LEFT JOIN trucks t ON r.truck_id = t.id
         ORDER BY r.created_at DESC
     ";
 
@@ -52,7 +52,7 @@ if ($role === 'admin' || $role === 'officer') {
         SELECT r.id, r.user_id, r.status, r.created_at, a.name AS area_name, t.name AS truck_name
         FROM requests r
         LEFT JOIN areas a ON r.area_id = a.id
-        LEFT JOIN trucks t ON a.assigned_truck_id = t.id
+        LEFT JOIN trucks t ON r.truck_id = t.id
         WHERE r.status = 'assigned'
         ORDER BY r.created_at DESC
     ";
@@ -65,7 +65,7 @@ if ($role === 'admin' || $role === 'officer') {
         SELECT r.id, r.user_id, r.status, r.created_at, a.name AS area_name, t.name AS truck_name
         FROM requests r
         LEFT JOIN areas a ON r.area_id = a.id
-        LEFT JOIN trucks t ON a.assigned_truck_id = t.id
+        LEFT JOIN trucks t ON r.truck_id = t.id
         WHERE r.user_id = ?
         ORDER BY r.created_at DESC
     ";

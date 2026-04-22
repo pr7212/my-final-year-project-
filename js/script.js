@@ -78,7 +78,7 @@ function renderRows(items) {
   tableBody.innerHTML = '';
 
   if (!items.length) {
-    tableBody.innerHTML = `<tr><td colspan="4">No requests found</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="5">No requests found</td></tr>`;
     return;
   }
 

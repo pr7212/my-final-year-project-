@@ -12,6 +12,13 @@ require_once '../includes/auth.php';
 requireRole('admin');
 
 $input = json_decode(file_get_contents('php://input'), true);
+
+$csrf = $input['csrf_token'] ?? '';
+if (empty($_SESSION['csrf_token']) || !hash_equals($_SESSION['csrf_token'], $csrf)) {
+  echo json_encode(['success' => false, 'message' => 'Invalid CSRF token']);
+  exit();
+}
+
 $id = (int)($input['id'] ?? 0);
 $status = trim($input['status'] ?? '');
 

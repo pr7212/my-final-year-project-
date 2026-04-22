@@ -26,6 +26,12 @@ if (empty($location) || empty($collection_date)) {
   exit();
 }
 
+$date = DateTime::createFromFormat('Y-m-d', $collection_date);
+if (!$date || $date->format('Y-m-d') !== $collection_date) {
+    echo json_encode(['success' => false, 'message' => 'Invalid date format']);
+    exit();
+}
+
 $stmt = $conn->prepare("INSERT INTO schedules (location, collection_date, status) VALUES (?, ?, 'scheduled')");
 $stmt->bind_param("ss", $location, $collection_date);
 

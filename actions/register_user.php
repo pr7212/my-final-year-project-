@@ -2,7 +2,6 @@
 session_start();
 require '../config/db.php';
 
-header('Content-Type: application/json');
 
 // 0. Redirect if already logged in
 if (!empty($_SESSION['user_id'])) {

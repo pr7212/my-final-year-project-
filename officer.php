@@ -35,24 +35,7 @@ include 'includes/header.php';
     </tbody>
   </table>
 
-  <div id="edit-modal" style="display:none; position:fixed; top:20%; left:20%; background:white; border:2px solid #ccc; padding:20px; z-index:1000;">
-    <h4>Edit Request (Officer)</h4>
-    <input type="hidden" id="edit-id">
-    <label>Area: <select id="edit-area_id" required>
-        <option value="">Select Area</option>
-      </select></label><br><br>
-    <label>Status:
-      <select id="edit-status">
-        <option value="pending">Pending</option>
-        <option value="assigned">Assigned</option>
-        <option value="in-progress">In Progress</option>
-        <option value="completed">Completed</option>
-        <option value="cancelled">Cancelled</option>
-      </select>
-    </label><br><br>
-    <button type="button" onclick="saveEdit()">Save Changes</button>
-    <button type="button" onclick="closeModal()">Cancel</button>
-  </div>
+
 </div>
 
 <script>

@@ -104,9 +104,6 @@ include 'includes/header.php';
     <label>Status:
       <select id="edit-status">
         <option value="pending">Pending</option>
-        <option value="assigned">Assigned</option>
-        <option value="in-progress">In Progress</option>
-        <option value="completed">Completed</option>
         <option value="cancelled">Cancelled</option>
       </select>
     </label><br><br>

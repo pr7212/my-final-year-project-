@@ -31,6 +31,16 @@ function requireRole($role)
 {
     $roles = is_array($role) ? $role : [$role];
     if (!in_array($_SESSION['role'] ?? '', $roles, true)) {
+        $isAjax = strtolower($_SERVER['HTTP_X_REQUESTED_WITH'] ?? '') === 'xmlhttprequest'
+               || stripos($_SERVER['HTTP_ACCEPT'] ?? '', 'application/json') !== false;
+        
+        if ($isAjax) {
+            http_response_code(403);
+            header('Content-Type: application/json');
+            echo json_encode(['success' => false, 'message' => 'Unauthorized']);
+            exit();
+        }
+
         header("Location: index.php");
         exit();
     }

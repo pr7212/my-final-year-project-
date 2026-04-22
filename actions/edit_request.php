@@ -81,6 +81,11 @@ if ($role === 'admin' || $role === 'officer') {
   $stmt->bind_param('isi', $area_id, $status, $request_id);
 } else {
   // Residents can only edit their own pending requests
+  $resident_allowed_statuses = ['pending', 'cancelled'];
+  if (!in_array($status, $resident_allowed_statuses, true)) {
+    respond(false, 'Invalid status for resident', null, 403, '../resident.php?error=invalid_status');
+  }
+
   $sql = "
     UPDATE requests
     SET area_id = ?, status = ?, updated_at = CURRENT_TIMESTAMP

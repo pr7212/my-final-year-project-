@@ -110,7 +110,8 @@ if (empty($_SESSION['csrf_token'])) {
           },
           body: JSON.stringify({
             id,
-            status
+            status,
+            csrf_token: document.querySelector('input[name="csrf_token"]').value
           })
         });
         const data = await res.json();
