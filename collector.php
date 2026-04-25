@@ -2,6 +2,10 @@
 include 'includes/auth.php';
 requireRole('collector');
 
+if (empty($_SESSION['csrf_token'])) {
+  $_SESSION['csrf_token'] = bin2hex(random_bytes(32));
+}
+
 $pageTitle = 'Collector Dashboard';
 include 'includes/header.php';
 ?>

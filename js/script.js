@@ -222,6 +222,9 @@ async function editRow(id, areaName, status) {
   const result = await ajaxRequest('actions/fetch_areas.php');
   if (result.success) {
     populateSelect('edit-area_id', result.data, 'Select Area');
+    // Find the matching area by name and set it
+    const matchingArea = result.data.find(a => a.name === areaName);
+    if (matchingArea) document.getElementById('edit-area_id').value = matchingArea.id;
   }
 
   editModal.style.display = 'block';
@@ -337,7 +340,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
   }
 
-  if (createForm && userRole === 'resident') {
+  if (createForm && (userRole === 'resident' || userRole === 'admin')) {
     createForm.addEventListener('submit', createRequest);
   }
 

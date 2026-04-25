@@ -56,7 +56,7 @@ if (strlen($password) < 8) {
 }
 
 // 8. Secure password match check
-if (!hash_equals($password, $confirm)) {
+if ($password !== $confirm) {
   header("Location: ../register.php?error=password_mismatch");
   exit();
 }

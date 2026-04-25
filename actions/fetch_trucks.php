@@ -5,7 +5,7 @@ require_once '../includes/auth.php';
 
 header('Content-Type: application/json');
 
-requireRole(['admin']);
+requireRole(['admin', 'officer']);
 
 $sql = "SELECT id, name, status, created_at FROM trucks ORDER BY name ASC";
 $stmt = $conn->prepare($sql);

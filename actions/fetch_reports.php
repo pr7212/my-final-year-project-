@@ -19,6 +19,8 @@ function respond($success, $message, $data = [], $code = 200)
   exit();
 }
 
+requireRole(['admin', 'officer', 'resident']);
+
 if ($role === 'admin' || $role === 'officer') {
   // All reports
   $sql = "SELECT r.id, r.user_id, u.name as user_name, r.location, r.description, r.status, r.created_at
