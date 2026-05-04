@@ -1,8 +1,8 @@
 <?php
-$servername = 'localhost';
-$username = 'root';
-$password = '';
-$dbname = 'garbage_tracker';
+$servername = 'sql100.byetcluster.com';
+$username = 'if0_41685326';
+$password = 'VKMqBw5idpu37L';
+$dbname = 'if0_41685326_gmts';
 
 $conn = new mysqli($servername, $username, $password, $dbname);
 
