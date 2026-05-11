@@ -50,8 +50,8 @@ $checkArea = $conn->prepare('SELECT id FROM areas WHERE id = ? LIMIT 1');
 $checkTruck = $conn->prepare('SELECT id FROM trucks WHERE id = ? LIMIT 1');
 
 if (!$checkArea || !$checkTruck) {
-  echo json_encode(["error" => $conn->error]);
-  exit();
+  error_log('assign_truck.php: prepare failed - ' . $conn->error);
+  redirect_with_status('error=db_error');
 }
 
 $checkArea->bind_param('i', $area_id);
@@ -74,15 +74,17 @@ $checkTruck->close();
 
 $stmt = $conn->prepare('UPDATE areas SET assigned_truck_id = ? WHERE id = ?');
 if (!$stmt) {
-  echo json_encode(["error" => $stmt->error]);
-  exit();
+  error_log('assign_truck.php: update prepare failed - ' . $conn->error);
+  redirect_with_status('error=db_error');
 }
 
 $stmt->bind_param('ii', $truck_id, $area_id);
 
 if (!$stmt->execute()) {
-  echo json_encode(["error" => $stmt->error]);
-  exit();
+  error_log('assign_truck.php: execute failed - ' . $stmt->error);
+  $stmt->close();
+  $conn->close();
+  redirect_with_status('error=update_failed');
 }
 
 $result = $stmt->affected_rows > 0

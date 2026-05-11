@@ -22,8 +22,8 @@ $user_id = (int) $_SESSION['user_id'];
 $location = trim($_POST['location'] ?? '');
 $description = trim($_POST['description'] ?? '');
 
-if (empty($location)) {
-  echo json_encode(['success' => false, 'message' => 'Location required']);
+if (empty($location) || empty($description)) {
+  echo json_encode(['success' => false, 'message' => 'Location and description are required']);
   exit();
 }
 

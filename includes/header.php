@@ -7,11 +7,6 @@ $fullPageTitle = isset($pageTitle)
   ? htmlspecialchars($pageTitle) . ' | Garbage Tracker'
   : 'Garbage Tracker';
 
-$logoutUrl = 'actions/logout.php';
-if (!empty($_SESSION['csrf_token'])) {
-  $logoutUrl .= '?csrf_token=' . urlencode($_SESSION['csrf_token']);
-}
-
 function getDashboardUrl()
 {
   $role = $_SESSION['role'] ?? 'guest';

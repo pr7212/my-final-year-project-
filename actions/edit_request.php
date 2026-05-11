@@ -67,6 +67,12 @@ if ($request_id <= 0 || $area_id <= 0 || empty($status)) {
 
 $user_id = (int) $_SESSION['user_id'];
 
+// Validate status against allowed values
+$allowed_statuses = ['pending', 'assigned', 'in-progress', 'completed', 'cancelled'];
+if (!in_array($status, $allowed_statuses, true)) {
+  respond(false, 'Invalid status value', null, 400, '../admin.php?error=invalid_status');
+}
+
 if ($role === 'admin' || $role === 'officer') {
   // Admins/officers can edit any request
   $sql = "

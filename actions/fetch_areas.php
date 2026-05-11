@@ -1,8 +1,6 @@
 <?php
-session_start();
-require '../config/db.php';
-
 require_once '../includes/auth.php';
+require '../config/db.php';
 
 header('Content-Type: application/json');
 

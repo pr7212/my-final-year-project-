@@ -31,7 +31,8 @@ $stmt->bind_param("s", $name);
 if ($stmt->execute()) {
   echo json_encode(['success' => true, 'message' => 'Truck added', 'id' => $conn->insert_id]);
 } else {
-  echo json_encode(['success' => false, 'message' => 'Database error: ' . $conn->error]);
+  error_log('create_truck.php: insert failed - ' . $conn->error);
+  echo json_encode(['success' => false, 'message' => 'Database error']);
 }
 
 $stmt->close();

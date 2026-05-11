@@ -227,7 +227,11 @@ async function editRow(id, areaName, status) {
     if (matchingArea) document.getElementById('edit-area_id').value = matchingArea.id;
   }
 
-  editModal.style.display = 'block';
+  if (editModal.tagName === 'DIALOG') {
+    editModal.showModal();
+  } else {
+    editModal.style.display = 'block';
+  }
 }
 
 async function saveEdit() {
@@ -308,7 +312,11 @@ async function markCollected(id) {
 ===================================== */
 function closeModal() {
   if (editModal) {
-    editModal.style.display = 'none';
+    if (editModal.tagName === 'DIALOG') {
+      editModal.close();
+    } else {
+      editModal.style.display = 'none';
+    }
   }
 }
 
