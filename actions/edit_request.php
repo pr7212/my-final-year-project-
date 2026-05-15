@@ -95,7 +95,7 @@ if ($role === 'admin' || $role === 'officer') {
   $sql = "
     UPDATE requests
     SET area_id = ?, status = ?, updated_at = CURRENT_TIMESTAMP
-    WHERE id = ? AND user_id = ?
+    WHERE id = ? AND user_id = ? AND status = 'pending'
   ";
   $stmt = $conn->prepare($sql);
   if (!$stmt) {
