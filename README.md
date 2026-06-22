@@ -27,11 +27,16 @@ php tests
 
 If you wish to add more automated tests (e.g., for login, dashboard, CRUD), you can create additional PHP scripts in the future.
 
-## Deployment
+## Deployment (host online)
 
-- Use Apache/Nginx + PHP 8+ + MySQL
-- Set document root to `garbage-tracker/`
-- Update DB credentials in `config/db.php`
+See **[HOSTING.md](HOSTING.md)** for step-by-step instructions (InfinityFree / ByetCluster, phpMyAdmin, `.env` setup).
+
+Quick summary:
+
+1. Create MySQL database on your host
+2. Import `database/schema.sql` in phpMyAdmin
+3. Upload project files to `htdocs`
+4. Create `.env` on the server (copy from `.env.example`)
 
 ## File Structure (Phase 5 Complete)
 

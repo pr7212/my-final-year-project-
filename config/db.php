@@ -31,10 +31,14 @@ $username   = getenv('DB_USER') ?: 'root';
 $password   = getenv('DB_PASS') ?: '';
 $dbname     = getenv('DB_NAME') ?: 'garbage_tracker';
 
-$conn = new mysqli($servername, $username, $password, $dbname);
+try {
+  $conn = new mysqli($servername, $username, $password, $dbname);
+} catch (mysqli_sql_exception $e) {
+  error_log('DB Connection failed: ' . $e->getMessage());
+  die('A database connection error occurred. Please try again later.');
+}
 
 if ($conn->connect_error) {
-  // Never expose raw connection errors to the client
   error_log('DB Connection failed: ' . $conn->connect_error);
   die('A database connection error occurred. Please try again later.');
 }

@@ -5,7 +5,9 @@ if (session_status() === PHP_SESSION_NONE) {
 
 header("X-Frame-Options: DENY");
 header("X-Content-Type-Options: nosniff");
-header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+  header("Strict-Transport-Security: max-age=31536000; includeSubDomains");
+}
 header("Content-Security-Policy: default-src 'self'; font-src 'self' https://fonts.gstatic.com; style-src 'self' https://fonts.googleapis.com 'unsafe-inline'; script-src 'self' 'unsafe-inline'");
 
 $fullPageTitle = isset($pageTitle)
