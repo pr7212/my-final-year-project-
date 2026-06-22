@@ -1,7 +1,6 @@
 <?php
 session_start();
 require_once __DIR__ . '/../config/db.php';
-
 function wants_json_response()
 {
   $requestedWith = $_SERVER['HTTP_X_REQUESTED_WITH'] ?? '';

@@ -2,7 +2,6 @@
 session_start();
 require_once __DIR__ . '/../config/db.php';
 
-
 // 0. Redirect if already logged in
 if (!empty($_SESSION['user_id'])) {
   header("Location: ../index.php");
