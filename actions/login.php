@@ -1,6 +1,6 @@
 <?php
 session_start();
-require '../config/db.php';
+require_once __DIR__ . '/../config/db.php';
 
 function wants_json_response()
 {
